@@ -21,11 +21,11 @@ class ShowCategory(Enum):
 
 
 STATUS_CLASSES = {
-    ShowStatusEnum.PENDING: PendingStatus,
-    ShowStatusEnum.SCHEDULED: ScheduledStatus,
-    ShowStatusEnum.COMPLETED: CompletedStatus,
-    ShowStatusEnum.REJECTED: RejectedStatus,
-    ShowStatusEnum.CANCELLED: CancelledStatus
+    ShowStatusEnum.PENDING.name: PendingStatus,
+    ShowStatusEnum.SCHEDULED.name: ScheduledStatus,
+    ShowStatusEnum.COMPLETED.name: CompletedStatus,
+    ShowStatusEnum.REJECTED.name: RejectedStatus,
+    ShowStatusEnum.CANCELLED.name: CancelledStatus
 }
 
 class Show(models.Model):
@@ -49,10 +49,15 @@ class Show(models.Model):
             return status_class(self)
         raise ValueError(f"Unknown status: {self.status}")
 
-    def handle_status(self):
+    def approve(self):
         status_instance = self.get_status_instance()
-        status_instance.handle()
+        if(status_instance and not isinstance(status_instance, PendingStatus)):
+            raise Exception("Show is not in pending status")
+        status_instance.transition_to_scheduled()
+    
+    def reject(self):
+        status_instance = self.get_status_instance()
+        if(not isinstance(status_instance, PendingStatus)):
+            raise Exception("Show is not in pending status")
+        status_instance.transition_to_rejected()
 
-    def next_status(self):
-        status_instance = self.get_status_instance()
-        status_instance.next_status()

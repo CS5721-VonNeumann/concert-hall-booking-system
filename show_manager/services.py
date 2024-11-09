@@ -3,6 +3,8 @@ from users.models import ShowProducer
 from .models import ShowCategory, Slot
 from hall_manager.models import Hall
 from .showstatuses import ShowStatusEnum
+from approval_engine.tasks import process_show_request
+from approval_engine.engine import ApprovalEngine
 
 class ShowRequestService:
     @staticmethod
@@ -28,6 +30,10 @@ class ShowRequestService:
             )
         except Exception as e:
             print(e)
-        # from approval_engine.tasks import process_show_request
+
+        # asynchronous request to approval engine
         # process_show_request.delay(show.id)
+        approval_engine = ApprovalEngine(show)
+        approval_engine.process_request()
+
         return show

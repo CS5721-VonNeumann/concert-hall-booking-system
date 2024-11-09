@@ -26,6 +26,19 @@ class PendingStatus(ShowStatus):
     def get_status(self):
         return ShowStatusEnum.PENDING
 
+    def transition_to_scheduled(self):
+        """Transition the status from 'Pending' to 'Scheduled'."""
+        self.show.status = ShowStatusEnum.SCHEDULED.name
+        self.show.save()
+        print(f"Show status changed from {ShowStatusEnum.PENDING.name} to {ShowStatusEnum.SCHEDULED.name}")
+
+    def transition_to_rejected(self):
+        """Transition the status from 'Pending' to 'Rejected'."""
+        self.show.status = ShowStatusEnum.REJECTED.name
+        self.show.save()
+        print(f"Show status changed from {ShowStatusEnum.PENDING.name} to {ShowStatusEnum.REJECTED.name}")
+
+
 class ScheduledStatus(ShowStatus):
     def get_status(self):
         return ShowStatusEnum.SCHEDULED
