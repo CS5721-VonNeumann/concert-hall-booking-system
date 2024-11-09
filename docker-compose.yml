@@ -32,6 +32,31 @@ services:
       - "8000:8000"
     depends_on:
       - db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: concert_hall_rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"  # RabbitMQ broker port
+      - "15672:15672"  # Management UI port for RabbitMQ
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: concert_hall_celery
+    command: sh -c "export ENV=${ENVIRONMENT} && celery -A config worker --loglevel=info"
+    environment:
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+    depends_on:
+      - backend
+      - rabbitmq
+    volumes:
+      - .:/app
       
 volumes:
   data:
