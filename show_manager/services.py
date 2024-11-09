@@ -32,8 +32,6 @@ class ShowRequestService:
             print(e)
 
         # asynchronous request to approval engine
-        # process_show_request.delay(show.id)
-        approval_engine = ApprovalEngine(show)
-        approval_engine.process_request()
+        process_show_request.delay(show.id)
 
         return show

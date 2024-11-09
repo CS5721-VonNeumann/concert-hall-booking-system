@@ -20,12 +20,12 @@ class ApprovalEngine:
             print("Another show is already scheduled in the same hall and slot.")
             return False
 
-        # check if the hall supports the requested category
+        # TODO check if the hall supports the requested category
         # if self.show.category not in self.show.hall.supported_categories:
         #     print("Validation failed: The hall does not support this show category.")
         #     return False
 
-        # check if the hall supports the requested slot
+        # TODO check if the hall supports the requested slot
         return True
 
     def process_request(self):

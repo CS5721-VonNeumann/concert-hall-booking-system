@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     "approval_engine",
     "users",
     "show_manager",
-    "hall_manager"
+    "hall_manager",
+    "celery"
 ]
 
 MIDDLEWARE = [
@@ -135,3 +136,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# settings.py
+CELERY_BROKER_URL = env.str('CELERY_BROKER_URL'),  # RabbitMQ default URL
