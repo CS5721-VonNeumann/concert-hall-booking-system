@@ -9,6 +9,9 @@ django = "==5.1.2"
 sqlparse = "==0.5.1"
 mysqlclient = "*"
 django-environ = "*"
+django-celery = "*"
+celery = "*"
+flower = "*"
 
 [dev-packages]
 
