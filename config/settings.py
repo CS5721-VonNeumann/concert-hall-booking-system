@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "users",
     "show_manager",
     "hall_manager",
+    "ticket_manager",
     "celery"
 ]
 
