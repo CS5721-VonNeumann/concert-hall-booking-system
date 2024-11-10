@@ -24,6 +24,14 @@ Step 6. Populate .env.local file.
 
 Step 7. Run `ENV=local python manage.py runserver`. This will pick environment variables from .env.local file.
 
+## To run Celery for asynchronous processing,
+
+Step 1. Install RabbitMq (for Macos, `brew install rabbitmq && brew services start rabbitmq`)
+
+Step 2. Run `ENV=local celery -A config worker --loglevel=INFO` on another terminal.
+
+Step 3. For monitoring, run `ENV=local celery -A config flower` on another terminal
+
 
 ## To run the app using Docker
 
