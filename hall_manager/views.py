@@ -2,7 +2,7 @@ import json
 
 from django.http import JsonResponse, HttpRequest
 from django.shortcuts import get_object_or_404
-from .models import Hall, Venue, Slot
+from .models import Hall, Venue
 
 def create_hall(request: HttpRequest):
     if request.method == 'POST':
@@ -14,14 +14,10 @@ def create_hall(request: HttpRequest):
         venue_id = body.get('venue_id')
         venue = get_object_or_404(Venue, id=venue_id)
 
-        slot_id = body.get('slot_id')
-        slot = get_object_or_404(Slot, id=slot_id)
-
         Hall.objects.create(
             hall_name=hall_name,
             hall_capacity = hall_capacity,
             venue = venue,
-            slot = slot
         )
 
         return JsonResponse({
@@ -29,3 +25,9 @@ def create_hall(request: HttpRequest):
             }, status=201) 
 
     return JsonResponse({"error": "Invalid request method."}, status=405)
+
+def create_slot():
+    print("TEST")
+
+def create_venue():
+    print("TEST")
