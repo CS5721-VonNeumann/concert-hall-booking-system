@@ -41,6 +41,14 @@ class Hall(models.Model):
     def supports_slot(self, slot):
         return HallSupportsSlot.objects.filter(hall=self, slot=slot).exists()
 
+    # fetch all halls that supports given category and slot
+    def get_halls_by_category_and_slot(self, category, slot):
+        halls_with_category = HallSupportsCategory.objects.filter(category=category).values_list('hall_id', flat=True)
+        
+        halls_with_slot = HallSupportsSlot.objects.filter(slot=slot).values_list('hall_id', flat=True)
+
+        return self.objects.filter(id__in=halls_with_category, id__in=halls_with_slot).distinct()
+
 class HallSupportsCategory(models.Model):
     hall = models.ForeignKey(Hall, on_delete=models.CASCADE, null=True,related_name="hall_supports_categories")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, related_name="hall_supports_categories")
