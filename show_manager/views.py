@@ -1,8 +1,7 @@
-from django.shortcuts import HttpResponse, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.http import HttpRequest, JsonResponse
 from users.models import ShowProducer
 from show_manager.services import ShowRequestService
-from django.core import serializers
 from django.forms.models import model_to_dict
 from hall_manager.models import Hall, Slot, Category
 import json
