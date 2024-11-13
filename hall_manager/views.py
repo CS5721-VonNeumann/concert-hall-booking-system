@@ -97,7 +97,8 @@ def assign_slot_to_hall(request: HttpRequest):
 
         return JsonResponse({
                 "message": "Slot assigned to hall successfully",
-            }, status=201) 
+            }, status=201)
+    
     return JsonResponse({"error": "Invalid request method."}, status=405)
 
 def assign_category_to_hall(request: HttpRequest):
