@@ -43,7 +43,7 @@ class Show(models.Model):
         status_instance.transition_to_rejected()
     
     # check if a hall is available to host the show at given slot
-    def is_hall_available_at_slot(hall, slot):
-        has_available_slot = not Show.objects.filter(hall=hall, slot=slot).exists()
+    def is_hall_available_at_slot(self, hall, slot):
+        has_available_slot = not self.objects.filter(hall=hall, slot=slot).exists()
         return has_available_slot
 
