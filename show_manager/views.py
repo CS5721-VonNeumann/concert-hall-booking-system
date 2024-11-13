@@ -4,7 +4,7 @@ from users.models import ShowProducer
 from show_manager.services import ShowRequestService
 from django.core import serializers
 from django.forms.models import model_to_dict
-from hall_manager.models import Hall, Slot
+from hall_manager.models import Hall, Slot, Category
 import json
 
 def create_show_request(request: HttpRequest):
@@ -15,7 +15,9 @@ def create_show_request(request: HttpRequest):
     body = json.loads(request.body)
 
     name = body.get('name')
-    category = body.get('category')
+    category_id = body.get('category_id')
+    category = get_object_or_404(Category, id=category_id)
+    
     has_intermission = body.get('has_intermission')
 
     slot_id = body.get('slot_id')
