@@ -1,23 +1,31 @@
-from django.http import JsonResponse
-from .models import Hall
 import json
 
-# Create your views here.
+from django.http import JsonResponse, HttpRequest
+from django.shortcuts import get_object_or_404
+from .models import Hall, Venue, Slot
 
-def create_hall(request):
+def create_hall(request: HttpRequest):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        hall_name = data.get('hall_name')
-        hall_capacity = data.get('hall_capacity', 0)
-        hall = Hall.objects.create(
+        body = json.loads(request.body)
+
+        hall_name = body.get('hall_name')
+        hall_capacity = body.get('hall_capacity')
+
+        venue_id = body.get('venue_id')
+        venue = get_object_or_404(Venue, id=venue_id)
+
+        slot_id = body.get('slot_id')
+        slot = get_object_or_404(Slot, id=slot_id)
+
+        Hall.objects.create(
             hall_name=hall_name,
-            hall_capacity = hall_capacity
+            hall_capacity = hall_capacity,
+            venue = venue,
+            slot = slot
         )
+
         return JsonResponse({
                 "message": "Hall created successfully",
-                "hall_id": hall.id,
-                "hall_name": hall.hall_name,
-                "hall_capacity": hall.hall_capacity,
             }, status=201) 
 
     return JsonResponse({"error": "Invalid request method."}, status=405)
