@@ -49,7 +49,6 @@ class Hall(models.Model):
         intersecting_hall_ids = set(halls_with_category).intersection(halls_with_slot)
         halls = Hall.objects.filter(id__in=intersecting_hall_ids)
         return list(halls)
-   
 
 class HallSupportsCategory(models.Model):
     hall = models.ForeignKey(Hall, on_delete=models.CASCADE, null=True,related_name="hall_supports_categories")
