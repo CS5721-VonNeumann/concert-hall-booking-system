@@ -8,4 +8,5 @@ urlpatterns = [
     path("halls/create", views.create_hall),
     path("halls/assign_slot", views.assign_slot_to_hall),
     path("halls/assign_category", views.assign_category_to_hall),
+    path("halls/get_by_category_and_slot", views.get_halls_by_category_and_slot),
 ]

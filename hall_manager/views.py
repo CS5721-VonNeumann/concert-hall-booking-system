@@ -1,8 +1,9 @@
 import json
-
 from django.http import JsonResponse, HttpRequest
 from django.shortcuts import get_object_or_404
 from .models import Hall, Venue, Slot, Category, HallSupportsSlot, HallSupportsCategory
+from show_manager.models import Show
+from django.forms.models import model_to_dict
 
 def create_hall(request: HttpRequest):
     if request.method == 'POST':
@@ -89,7 +90,7 @@ def assign_slot_to_hall(request: HttpRequest):
         
         slot_id = body.get('slot_id')
         slot = get_object_or_404(Slot, id=slot_id)
-
+        
         HallSupportsSlot.objects.create(
             hall=hall,
             slot=slot
@@ -119,5 +120,29 @@ def assign_category_to_hall(request: HttpRequest):
         return JsonResponse({
                 "message": "Category assigned to hall successfully",
             }, status=201)
+    
+    return JsonResponse({"error": "Invalid request method."}, status=405)
+
+def get_halls_by_category_and_slot(request: HttpRequest):
+    if request.method == 'GET':
+        try:
+            category_id = request.GET.get('category_id')
+            category = get_object_or_404(Category, id=category_id)
+
+            slot_id = request.GET.get('slot_id')
+            slot = get_object_or_404(Slot, id=slot_id)
+
+            supporting_halls = Hall.get_halls_by_category_and_slot(category=category, slot=slot)
+            available_supporting_halls = []
+            
+            for hall in supporting_halls:
+                if not Show.is_overlapping_show_exists(hall=hall, slot=slot):
+                    available_supporting_halls.append(model_to_dict(hall))
+
+            return JsonResponse({
+                'available_supporting_halls': available_supporting_halls
+            }, status=200)
+        except Exception as e:
+            print(e)
     
     return JsonResponse({"error": "Invalid request method."}, status=405)
