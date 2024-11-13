@@ -1,8 +1,7 @@
 from django.db import models
 from users.models import ShowProducer
-from hall_manager.models import Hall, Slot
+from hall_manager.models import Hall, Slot, Category
 from .showstatuses import PendingStatus, ScheduledStatus, CompletedStatus, RejectedStatus, CancelledStatus, ShowStatusEnum
-from config.constants import ShowCategory
 
 # keep enums in a single file together enums.py
 STATUS_CLASSES = {
@@ -15,16 +14,14 @@ STATUS_CLASSES = {
 
 class Show(models.Model):
     name = models.CharField(max_length=50)
-
-    CATEGORY_CHOICES = [(category.name, category.name) for category in ShowCategory]
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default= ShowCategory.LIVE_PERFORMANCE.name)
+    has_intermission = models.BooleanField()
 
     STATUS_CHOICES = [(showStatus.name, showStatus.name) for showStatus in ShowStatusEnum]
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=ShowStatusEnum.PENDING.name)
-
-    has_intermission = models.BooleanField()
-    slot = models.ForeignKey(Slot, on_delete=models.CASCADE, null=True, related_name='shows')
+    
     hall = models.ForeignKey(Hall, on_delete=models.CASCADE, null=True, related_name="shows")
+    slot = models.ForeignKey(Slot, on_delete=models.CASCADE, null=True, related_name='shows')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, related_name="shows")
     show_producer = models.ForeignKey(ShowProducer, on_delete=models.SET_NULL, null=True, related_name='shows')
 
     def get_status_instance(self):

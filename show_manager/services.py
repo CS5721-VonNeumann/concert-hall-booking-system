@@ -1,7 +1,6 @@
 from .models import Show
 from users.models import ShowProducer
-from config.constants import ShowCategory
-from hall_manager.models import Hall, Slot
+from hall_manager.models import Hall, Slot, Category
 from .showstatuses import ShowStatusEnum
 from approval_engine.tasks import process_show_request
 from approval_engine.engine import ApprovalEngine
@@ -11,7 +10,7 @@ class ShowRequestService:
     def request_show(
         show_producer: ShowProducer,
         name: str,
-        category: ShowCategory,
+        category: Category,
         has_intermission: bool,
         slot: Slot,
         hall: Hall

@@ -58,14 +58,10 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=50)),
                 (
                     "category",
-                    models.CharField(
-                        choices=[
-                            ("LIVE_PERFORMANCE", "LIVE_PERFORMANCE"),
-                            ("MOVIE_SCREENING", "MOVIE_SCREENING"),
-                            ("CONFERENCE", "CONFERENCE"),
-                        ],
-                        default=show_manager.models.ShowCategory["LIVE_PERFORMANCE"],
-                        max_length=20,
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="shows",
+                        to="show_manager.category",
                     ),
                 ),
                 ("has_intermission", models.BooleanField()),

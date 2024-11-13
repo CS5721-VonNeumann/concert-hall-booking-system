@@ -1,5 +1,4 @@
 from django.db import models
-from config.constants import ShowCategory
 
 class Slot(models.Model):
     TIMING_CHOICES = [
@@ -10,6 +9,9 @@ class Slot(models.Model):
     ]
     date = models.DateField()
     timing = models.CharField(max_length=10, choices=TIMING_CHOICES)
+
+class Category(models.Model):
+    category_name = models.CharField(max_length=20)
 
 class Venue(models.Model):
     venue_name = models.CharField(max_length=30)
@@ -40,15 +42,13 @@ class Hall(models.Model):
         return HallSupportsSlot.objects.filter(hall=self, slot=slot).exists()
 
 class HallSupportsCategory(models.Model):
-    CATEGORY_CHOICES = [(category.name, category.name) for category in ShowCategory]
-    show_category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default= ShowCategory.LIVE_PERFORMANCE.name)
-
     hall = models.ForeignKey(Hall, on_delete=models.CASCADE, null=True,related_name="hall_supports_categories")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, related_name="hall_supports_categories")
 
 class HallSupportsSlot(models.Model):
-    hall = models.ForeignKey(Hall, on_delete=models.CASCADE, related_name="hall_supports_slots")
-    slot = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name="hall_supports_slots")
+    hall = models.ForeignKey(Hall, on_delete=models.CASCADE, null=True, related_name="hall_supports_slots")
+    slot = models.ForeignKey(Slot, on_delete=models.CASCADE, null=True, related_name="hall_supports_slots")
 
 class Seat(models.Model):
     seat_number = models.PositiveIntegerField()
-    hall = models.ForeignKey(Hall, on_delete=models.CASCADE, related_name="seats")
+    hall = models.ForeignKey(Hall, on_delete=models.CASCADE, null=True, related_name="seats")
