@@ -4,8 +4,7 @@ from users.models import ShowProducer
 from show_manager.services import ShowRequestService
 from django.core import serializers
 from django.forms.models import model_to_dict
-from .models import Slot
-from hall_manager.models import Hall
+from hall_manager.models import Hall, Slot
 import json
 
 def create_show_request(request: HttpRequest):
@@ -22,7 +21,6 @@ def create_show_request(request: HttpRequest):
     slot_id = body.get('slot_id')
     slot = get_object_or_404(Slot, id=slot_id)
     
-
     hall_id = body.get('hall_id')
     hall = get_object_or_404(Hall, id=hall_id)
 
