@@ -1,0 +1,6 @@
+from enum import Enum
+
+class ShowCategory(Enum):
+    LIVE_PERFORMANCE = 'LIVE_PERFORMANCE', 
+    MOVIE_SCREENING = 'MOVIE_SCREENING',
+    CONFERENCE = 'CONFERENCE'

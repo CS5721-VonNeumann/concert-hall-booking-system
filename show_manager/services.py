@@ -1,7 +1,7 @@
 from .models import Show
 from users.models import ShowProducer
-from .models import ShowCategory, Slot
-from hall_manager.models import Hall
+from config.constants import ShowCategory
+from hall_manager.models import Hall, Slot
 from .showstatuses import ShowStatusEnum
 from approval_engine.tasks import process_show_request
 from approval_engine.engine import ApprovalEngine
