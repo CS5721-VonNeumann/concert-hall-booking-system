@@ -39,7 +39,6 @@ class Show(models.Model, Subject):
         """
         Notify the registered observer (show producer) about the status change.
         """
-        print(self, self.show_producer, interest)
         if(interest == 0):
             self.show_producer.update(message=f"Show '{self.name}' status changed to {self.status}")
         # TODO 
