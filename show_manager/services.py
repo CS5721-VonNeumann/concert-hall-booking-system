@@ -20,17 +20,20 @@ class ShowRequestService:
         """
         try:
             show = Show.objects.create(
-                show_producer=show_producer,
                 name=name,
                 category=category,
                 has_intermission=has_intermission,
                 slot=slot,
                 hall=hall,
             )
+
+            show.attach(observer=show_producer, interest=0)
+
         except Exception as e:
             print(e)
 
+        # synchronous: ApprovalEngine(show).handle_show_request()
         # asynchronous request to approval engine
         handle_show_request.delay(show.id)
-
+        
         return show
