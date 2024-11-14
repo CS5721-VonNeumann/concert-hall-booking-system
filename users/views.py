@@ -1,11 +1,9 @@
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from .serializer import CustomerUserSerializer, ShowProducerSerializer
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
-from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny
@@ -134,7 +132,6 @@ def protected_view(request):
             }
     elif hasattr(user, 'showproducer'):
         user_type = "Show Producer"
-        currentuser = ShowProducer.objects.get(user=user)
         currentuser = ShowProducer.objects.get(user=user)
         user_data = {
             "username": currentuser.user.username,
