@@ -18,25 +18,29 @@ class ApprovalEngine:
             category = self.show.category
             
             # check for overlapping scheduled shows
-            if(Show.is_overlapping_show_exists(hall= self.show.hall, slot= self.show.slot)):
-                print("Another show is already scheduled in the same hall and slot.")
-                return False
+            if Show.is_overlapping_show_exists(hall= self.show.hall, slot= self.show.slot):
+                message = "Another show is already scheduled in the same hall and slot."
+                print(message)
+                return False, message
 
             if not hall.supports_category(category=category):
-                print("Validation failed: The hall does not support this show category.")
-                return False
+                message = "Validation failed: The hall does not support this show category."
+                print(message)
+                return False, message
 
             if not hall.supports_slot(slot=slot):
-                print("Validation failed: The hall does not support this show slot.")
-                return False
+                message = "Validation failed: The hall does not support this show slot."
+                print(message)
+                return False, message
             
-            return True
+            return True, ""
         except Exception as e:
             print(e)
-            return False
+            return False, "Error in validating request"
 
     def handle_show_request(self):
-        if self.validate_show_request():
+        is_valid, message = self.validate_show_request()
+        if is_valid:
             self.show.schedule()
         else:
-            self.show.reject()
+            self.show.reject(message)

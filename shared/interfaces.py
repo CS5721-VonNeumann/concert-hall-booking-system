@@ -13,7 +13,7 @@ class Subject():
         if observer in self._observers:
             self._observers.remove(observer)
 
-    def notify(self, interest):
+    def notify(self, interest, message):
         raise NotImplementedError("Subclasses should implement this method")
 
 

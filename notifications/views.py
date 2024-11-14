@@ -20,7 +20,7 @@ def get_show_producer_notifications(request: HttpRequest):
             notifications.append(model_to_dict(notification))
 
         return JsonResponse({
-            'unread_notifications': notifications
+            'notifications_response': notifications
         }, status=200)
     
     return JsonResponse({"error": "Invalid request method."}, status=405)

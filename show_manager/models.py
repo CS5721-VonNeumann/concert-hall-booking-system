@@ -35,12 +35,12 @@ class Show(models.Model, Subject):
         # when customer purchases ticket, he will attach with interest = 1 to know show cancellations
         pass
 
-    def notify(self, interest):
+    def notify(self, interest, message = ""):
         """
         Notify the registered observer (show producer) about the status change.
         """
         if(interest == 0):
-            self.show_producer.update(message=f"Show '{self.name}' status changed to {self.status}")
+            self.show_producer.update(f"Show '{self.name}' status changed to {self.status}. {message}")
         # TODO 
         # on cancellation, notify customers who purchased tickets for this show
         pass
@@ -58,12 +58,12 @@ class Show(models.Model, Subject):
         status_instance.transition_to_scheduled()
         self.notify(interest=0)
     
-    def reject(self):
+    def reject(self, message):
         status_instance = self.get_status_instance()
         if(not isinstance(status_instance, PendingStatus)):
             raise Exception("Show is not in pending status")
         status_instance.transition_to_rejected()
-        self.notify(interest=0)
+        self.notify(interest=0, message=message)
 
     @staticmethod
     def is_overlapping_show_exists(hall, slot):
