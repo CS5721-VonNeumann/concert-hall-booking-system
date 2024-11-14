@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "show_manager",
     "hall_manager",
     "ticket_manager",
+    "notifications",
     "celery",
     "rest_framework",
     "rest_framework.authtoken",

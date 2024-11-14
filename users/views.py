@@ -10,7 +10,6 @@ from rest_framework.permissions import AllowAny
 from rest_framework.decorators import permission_classes
 from .middleware import get_current_user
 from .models import Customer, ShowProducer
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_customer(request):

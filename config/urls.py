@@ -25,4 +25,7 @@ urlpatterns = [
     path("shows/", include('show_manager.urls')),
     path("hall_manager/", include('hall_manager.urls')),
     path("ticket_manager/", include('ticket_manager.urls')),
+    path("notifications/", include('notifications.urls')),
+    path('api/', include('users.urls')),
 ]
+

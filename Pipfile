@@ -12,6 +12,7 @@ django-environ = "*"
 django-celery = "*"
 celery = "*"
 flower = "*"
+djangorestframework = "*"
 
 [dev-packages]
 
