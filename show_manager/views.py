@@ -5,12 +5,18 @@ from show_manager.services import ShowRequestService
 from django.forms.models import model_to_dict
 from hall_manager.models import Hall, Slot, Category
 import json
+from users.middleware import get_current_user
 
 def create_show_request(request: HttpRequest):
     if request.method == 'POST':
         # TODO update logic to get producer
         # show_producer = request.show_producer
-        show_producer = get_object_or_404(ShowProducer, id=1)
+        user = get_current_user()
+        if not hasattr(user, 'showproducer'):
+            return JsonResponse({
+                "message": "Invalid login"
+            }, status=401)
+        show_producer = ShowProducer.objects.get(user=user)
 
         body = json.loads(request.body)
 
