@@ -30,7 +30,7 @@ class Show(models.Model):
             return status_class(self)
         raise ValueError(f"Unknown status: {self.status}")
 
-    def approve(self):
+    def schedule(self):
         status_instance = self.get_status_instance()
         if(status_instance and not isinstance(status_instance, PendingStatus)):
             raise Exception("Show is not in pending status")
@@ -41,9 +41,14 @@ class Show(models.Model):
         if(not isinstance(status_instance, PendingStatus)):
             raise Exception("Show is not in pending status")
         status_instance.transition_to_rejected()
-    
-    # check if a hall is available to host the show at given slot
-    def is_hall_available_at_slot(self, hall, slot):
-        has_available_slot = not self.objects.filter(hall=hall, slot=slot).exists()
-        return has_available_slot
 
+    @staticmethod
+    def is_overlapping_show_exists(hall, slot):
+        overlapping_shows = Show.objects.filter(
+            hall=hall, 
+            slot=slot,
+            status=ShowStatusEnum.SCHEDULED.name
+        ).exists()
+        return overlapping_shows
+
+    

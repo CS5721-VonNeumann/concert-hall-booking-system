@@ -2,7 +2,7 @@ from .models import Show
 from users.models import ShowProducer
 from hall_manager.models import Hall, Slot, Category
 from .showstatuses import ShowStatusEnum
-from approval_engine.tasks import process_show_request
+from approval_engine.tasks import handle_show_request
 from approval_engine.engine import ApprovalEngine
 
 class ShowRequestService:
@@ -31,6 +31,6 @@ class ShowRequestService:
             print(e)
 
         # asynchronous request to approval engine
-        process_show_request.delay(show.id)
+        handle_show_request.delay(show.id)
 
         return show
