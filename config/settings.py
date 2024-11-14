@@ -46,10 +46,12 @@ INSTALLED_APPS = [
     "users",
     "show_manager",
     "hall_manager",
+    "ticket_manager",
     "celery",
     "rest_framework",
     "rest_framework.authtoken",
 ]
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',  # Ensure this is present
@@ -58,6 +60,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',  # Ensure this is set for the permission
     ],
 }
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",

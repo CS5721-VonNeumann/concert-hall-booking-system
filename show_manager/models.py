@@ -1,25 +1,9 @@
 from django.db import models
 from users.models import ShowProducer
-from hall_manager.models import Hall
+from hall_manager.models import Hall, Slot, Category
 from .showstatuses import PendingStatus, ScheduledStatus, CompletedStatus, RejectedStatus, CancelledStatus, ShowStatusEnum
-from enum import Enum
 
-class Slot(models.Model):
-    TIMING_CHOICES = [
-        ('MORNING', 'MORNING'),
-        ('NOON', 'NOON'),
-        ('EVENING', 'EVENING'),
-        ('NIGHT', 'NIGHT'),
-    ]
-    date = models.DateField()
-    timing = models.CharField(max_length=10, choices=TIMING_CHOICES)
-
-class ShowCategory(Enum):
-    LIVE_PERFORMANCE = 'LIVE_PERFORMANCE', 
-    MOVIE_SCREENING = 'MOVIE_SCREENING',
-    CONFERENCE = 'CONFERENCE'
-
-
+# keep enums in a single file together enums.py
 STATUS_CLASSES = {
     ShowStatusEnum.PENDING.name: PendingStatus,
     ShowStatusEnum.SCHEDULED.name: ScheduledStatus,
@@ -30,18 +14,15 @@ STATUS_CLASSES = {
 
 class Show(models.Model):
     name = models.CharField(max_length=50)
-
-    CATEGORY_CHOICES = [(category.name, category.name) for category in ShowCategory]
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default= ShowCategory.LIVE_PERFORMANCE.name)
-
     has_intermission = models.BooleanField()
-    
+
     STATUS_CHOICES = [(showStatus.name, showStatus.name) for showStatus in ShowStatusEnum]
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=ShowStatusEnum.PENDING.name)
-
-    slot = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name='shows')
+    
+    hall = models.ForeignKey(Hall, on_delete=models.CASCADE, null=True, related_name="shows")
+    slot = models.ForeignKey(Slot, on_delete=models.CASCADE, null=True, related_name='shows')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, related_name="shows")
     show_producer = models.ForeignKey(ShowProducer, on_delete=models.SET_NULL, null=True, related_name='shows')
-    hall = models.ForeignKey(Hall, on_delete=models.CASCADE, related_name="shows")
 
     def get_status_instance(self):
         status_class = STATUS_CLASSES.get(self.status)
@@ -60,4 +41,9 @@ class Show(models.Model):
         if(not isinstance(status_instance, PendingStatus)):
             raise Exception("Show is not in pending status")
         status_instance.transition_to_rejected()
+    
+    # check if a hall is available to host the show at given slot
+    def is_hall_available_at_slot(self, hall, slot):
+        has_available_slot = not self.objects.filter(hall=hall, slot=slot).exists()
+        return has_available_slot
 
