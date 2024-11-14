@@ -49,16 +49,28 @@ INSTALLED_APPS = [
     "ticket_manager",
     "notifications",
     "celery"
+    "celery",
+    "rest_framework",
+    "rest_framework.authtoken",
 ]
-
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  # Ensure this is present
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',  # Ensure this is set for the permission
+    ],
+}
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     # "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # "users.middleware.CurrentUserMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "users.middleware.CurrentUserMiddleware"
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -141,3 +153,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # settings.py
 CELERY_BROKER_URL = env.str('CELERY_BROKER_URL'),  # RabbitMQ default URL
+
+USERNAME_FIELD = 'username'
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Default backend
+    # Add any custom backends here
+]
