@@ -123,7 +123,7 @@ def assign_category_to_hall(request: HttpRequest):
     
     return JsonResponse({"error": "Invalid request method."}, status=405)
 
-def get_halls_by_category_and_slot(request: HttpRequest):
+def get_halls(request: HttpRequest):
     if request.method == 'GET':
         try:
             category_id = request.GET.get('category_id')
@@ -140,7 +140,7 @@ def get_halls_by_category_and_slot(request: HttpRequest):
                     available_supporting_halls.append(model_to_dict(hall))
 
             return JsonResponse({
-                'available_supporting_halls': available_supporting_halls
+                'halls_response': available_supporting_halls
             }, status=200)
         except Exception as e:
             print(e)
