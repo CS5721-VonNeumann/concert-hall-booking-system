@@ -38,6 +38,8 @@ def create_show_request(request: HttpRequest):
         )
         
         show_dict = model_to_dict(show)
-        return JsonResponse(show_dict)
+        return JsonResponse({
+            'show_response': show_dict
+        })
     
     return JsonResponse({"error": "Invalid request method."}, status=405)
