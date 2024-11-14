@@ -6,17 +6,15 @@ from django.forms.models import model_to_dict
 from hall_manager.models import Hall, Slot, Category
 import json
 from users.middleware import get_current_user
+from rest_framework.decorators import permission_classes
+from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def create_show_request(request: HttpRequest):
     if request.method == 'POST':
-        # TODO update logic to get producer
-        # show_producer = request.show_producer
-        user = get_current_user()
-        if not hasattr(user, 'showproducer'):
-            return JsonResponse({
-                "message": "Invalid login"
-            }, status=401)
-        show_producer = ShowProducer.objects.get(user=user)
+        show_producer = ShowProducer.objects.get(user=get_current_user())
 
         body = json.loads(request.body)
 

@@ -5,15 +5,15 @@ from django.forms.models import model_to_dict
 import json
 from .models import ShowProducerNotifications
 from users.middleware import get_current_user
+from rest_framework.decorators import permission_classes
+from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def get_show_producer_notifications(request: HttpRequest):
     if request.method == 'GET':
-        # TODO update logic to get producer
-        # show_producer = request.show_producer
-        user = get_current_user()
-        if (not user) or (not hasattr(user, 'showproducer')):
-            return JsonResponse("Invalid login", status=401)
-        show_producer = ShowProducer.objects.get(user=user)
+        show_producer = ShowProducer.objects.get(user=get_current_user())
 
         # Filter notifications where the show_producer matches the given ID and is unread
         unread_notifications = ShowProducerNotifications.objects.filter(show_producer=show_producer, isRead=False)
