@@ -26,6 +26,7 @@ urlpatterns = [
     path("hall_manager/", include('hall_manager.urls')),
     path("ticket_manager/", include('ticket_manager.urls')),
     path("notifications/", include('notifications.urls')),
+    path("membership/", include('membership.urls')),
     path('api/', include('users.urls')),
 ]
 
