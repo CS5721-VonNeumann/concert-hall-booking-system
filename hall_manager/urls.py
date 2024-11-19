@@ -9,4 +9,6 @@ urlpatterns = [
     path("halls/assign_slot", views.assign_slot_to_hall),
     path("halls/assign_category", views.assign_category_to_hall),
     path("halls", views.get_halls),
+    path("seats/add", views.add_seats_to_hall),
+    path("seats/change_type", views.change_seat_type)
 ]

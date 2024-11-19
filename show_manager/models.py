@@ -1,7 +1,7 @@
 from django.db import models
 from users.models import ShowProducer
 from hall_manager.models import Hall, Slot, Category
-from .showstatuses import PendingStatus, ScheduledStatus, CompletedStatus, RejectedStatus, CancelledStatus, ShowStatusEnum
+from .showstatuses import ShowStatus, PendingStatus, ScheduledStatus, CompletedStatus, RejectedStatus, CancelledStatus, ShowStatusEnum
 from shared.interfaces import Subject
 
 # keep enums in a single file together enums.py
@@ -52,14 +52,14 @@ class Show(models.Model, Subject):
         raise ValueError(f"Unknown status: {self.status}")
 
     def schedule(self):
-        status_instance = self.get_status_instance()
+        status_instance: ShowStatus = self.get_status_instance()
         if(status_instance and not isinstance(status_instance, PendingStatus)):
             raise Exception("Show is not in pending status")
         status_instance.transition_to_scheduled()
         self.notify(interest=0)
     
     def reject(self, message):
-        status_instance = self.get_status_instance()
+        status_instance: ShowStatus = self.get_status_instance()
         if(not isinstance(status_instance, PendingStatus)):
             raise Exception("Show is not in pending status")
         status_instance.transition_to_rejected()
