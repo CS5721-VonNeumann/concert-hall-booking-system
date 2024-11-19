@@ -24,7 +24,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: concert_hall_backend
-    command: sh -c "export ENV=${ENVIRONMENT} && python3 manage.py makemigrations && python3 manage.py migrate --noinput && python3 manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
+    command: sh -c "export ENV=${ENVIRONMENT} && python3 manage.py makemigrations && python3 manage.py migrate --noinput && python manage.py init_periodic_tasks && python3 manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
     restart: always
     volumes:
       - .:/app
@@ -57,6 +57,21 @@ services:
       - rabbitmq
     volumes:
       - .:/app
+  
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: concert_hall_celery_beat
+    command: sh -c "export ENV=${ENVIRONMENT} && celery -A config beat --loglevel=info"
+    environment:
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+    depends_on:
+      - backend
+      - rabbitmq
+    volumes:
+      - .:/app
+
       
 volumes:
   data:

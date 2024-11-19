@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     "notifications",
     "celery",
     "django_celery_beat",
+    "django_celery_results",
+    'periodic_task_initializer',
     "rest_framework",
     "rest_framework.authtoken",
   
@@ -107,7 +109,7 @@ DATABASES = {
         "USER":  env.str('DATABASE_USER'),
         "PASSWORD":  env.str('DATABASE_USER_PASSWORD'),
         "HOST": env.str('DATABASE_HOST'),
-        "PORT": env.int('DATABASE_PORT')
+        "PORT": env.int('DATABASE_PORT'),
     }
 }
 
@@ -156,6 +158,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # settings.py
 CELERY_BROKER_URL = env.str('CELERY_BROKER_URL'),  # RabbitMQ default URL
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
+CELERY_RESULT_BACKEND = 'django-db'
 
 USERNAME_FIELD = 'username'
 AUTHENTICATION_BACKENDS = [
