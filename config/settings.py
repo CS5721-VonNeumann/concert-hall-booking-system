@@ -49,8 +49,10 @@ INSTALLED_APPS = [
     "ticket_manager",
     "notifications",
     "celery",
+    "django_celery_beat",
     "rest_framework",
     "rest_framework.authtoken",
+  
 ]
 
 REST_FRAMEWORK = {
