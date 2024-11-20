@@ -49,13 +49,13 @@ INSTALLED_APPS = [
     "ticket_manager",
     "notifications",
     "membership",
+    "loyalty_manager",
     "celery",
     "django_celery_beat",
     "django_celery_results",
     'periodic_task_initializer',
     "rest_framework",
     "rest_framework.authtoken",
-  
 ]
 
 REST_FRAMEWORK = {
