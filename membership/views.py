@@ -15,10 +15,10 @@ from users.models import Customer
 @permission_classes([IsAuthenticated])
 def purchaseMembership(request: HttpRequest):
     data = json.loads(request.body)
-    membership_code = data.get('membership_code')
+    membership_type = data.get('membership_type')
     customer = Customer.objects.get(user=get_current_user())
 
-    factory = get_membership_factory(membership_code)
+    factory = get_membership_factory(membership_type)
     if not factory:
         return JsonResponse(
             {"error": "Invalid membership type"},
@@ -33,10 +33,11 @@ def purchaseMembership(request: HttpRequest):
     # Save the membership type to the user's profile
     user_membership = CustomerMembership.objects.update_or_create(
         customer = customer,
-        membershipCode =  membership_instance.get_membership_code(),
+        membership_type =  membership_instance.get_membership_type(),
         price = membership_instance.get_membership_price(),
         expiry = expiry_date,
     )
+
     return JsonResponse(
         {"Success": "Membership purchase is Successful"},
         status=HTTP_200_OK

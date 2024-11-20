@@ -5,7 +5,7 @@ from enum import Enum
 class Membership(ABC):
 
     @abstractmethod
-    def get_membership_code(self):
+    def get_membership_type(self):
         pass
 
     @abstractmethod
@@ -36,7 +36,7 @@ class Membership(ABC):
 #Defining Concrete product
 
 class RegularMembership(Membership):
-    def get_membership_code(self):
+    def get_membership_type(self):
         return MembershipCodeEnum.REGULAR.name
     
     def get_membership_price(self):
@@ -60,7 +60,7 @@ class RegularMembership(Membership):
 
 
 class SilverMembership(Membership):
-    def get_membership_code(self):
+    def get_membership_type(self):
         return MembershipCodeEnum.SILVER.name
     
     def get_membership_price(self):
@@ -83,7 +83,7 @@ class SilverMembership(Membership):
     
 
 class GoldMembership(Membership):
-    def get_membership_code(self):
+    def get_membership_type(self):
         return MembershipCodeEnum.GOLD.name
     
     def get_membership_price(self):
