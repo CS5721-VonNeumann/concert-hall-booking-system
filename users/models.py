@@ -14,7 +14,7 @@ class Customer(models.Model):
 class ShowProducer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default="")
     phone = models.CharField(max_length=15, default="")
-
+    organisation = models.CharField(max_length=100, default="")
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name} (Show Producer)"
     
