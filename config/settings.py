@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "ticket_manager",
     "notifications",
     "membership",
+    "payment_gateway",
     "celery",
     "rest_framework",
     "rest_framework.authtoken",
