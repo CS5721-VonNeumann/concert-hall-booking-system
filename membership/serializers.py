@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from .memberships import MembershipCodeEnum
+from .memberships import MembershipTypeEnum
 
 class PurchaseMembershipSerializer(serializers.Serializer):
-    membership_code = serializers.ChoiceField(
-        choices=[code.name for code in MembershipCodeEnum],
+    membership_type = serializers.ChoiceField(
+        choices=[code.name for code in MembershipTypeEnum],
         required=True
         )
     membership_period = serializers.IntegerField(min_value=1, required=True)

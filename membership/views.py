@@ -19,7 +19,7 @@ def purchaseMembership(request: HttpRequest):
     serializer.is_valid(raise_exception=True)
     customer = Customer.objects.get(user=get_current_user())
 
-    factory = get_membership_factory(serializer.data['membership_code'])
+    factory = get_membership_factory(serializer.data['membership_type'])
     if not factory:
         return JsonResponse(
             {"error": "Invalid membership type"},

@@ -38,7 +38,7 @@ class Membership(ABC):
 
 class RegularMembership(Membership):
     def get_membership_code(self):
-        return MembershipCodeEnum.REGULAR.name
+        return MembershipTypeEnum.REGULAR.name
 
     def get_membership_price(self):
         return 0
@@ -57,9 +57,11 @@ class RegularMembership(Membership):
 
     def get_expiry(self, membership_period):
         return datetime.now(timezone.utc) + relativedelta(months=membership_period)
+
+
 class SilverMembership(Membership):
     def get_membership_code(self):
-        return MembershipCodeEnum.SILVER.name
+        return MembershipTypeEnum.SILVER.name
 
     def get_membership_price(self):
         return 100
@@ -82,7 +84,7 @@ class SilverMembership(Membership):
 
 class GoldMembership(Membership):
     def get_membership_code(self):
-        return MembershipCodeEnum.GOLD.name
+        return MembershipTypeEnum.GOLD.name
 
     def get_membership_price(self):
         return 300
@@ -101,7 +103,9 @@ class GoldMembership(Membership):
 
     def get_expiry(self, membership_period):
         return datetime.now(timezone.utc) + relativedelta(months=membership_period)
-class MembershipCodeEnum(Enum):
+
+
+class MembershipTypeEnum(Enum):
     REGULAR = 'REGULAR',
     SILVER = 'SILVER',
     GOLD = 'GOLD'
