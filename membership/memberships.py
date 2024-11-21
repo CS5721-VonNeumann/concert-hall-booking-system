@@ -1,7 +1,9 @@
-from abc import ABC,abstractmethod
+from abc import ABC, abstractmethod
+from datetime import datetime, timezone
+from dateutil.relativedelta import relativedelta
 from enum import Enum
 
-#Defining Abstarct Product
+# Defining Abstarct Product
 class Membership(ABC):
 
     @abstractmethod
@@ -29,43 +31,39 @@ class Membership(ABC):
         pass
     
     @abstractmethod
-    def get_expiry(self):
+    def get_expiry(self, membership_period):
         pass
 
-
-#Defining Concrete product
+# Defining Concrete product
 
 class RegularMembership(Membership):
     def get_membership_code(self):
         return MembershipCodeEnum.REGULAR.name
-    
+
     def get_membership_price(self):
-        return 0  
-    
+        return 0
+
     def get_ticket_discount_percentage(self):
-        return 0  
+        return 0
 
     def get_loyalty_booster(self):
         return 1.0  # No boost for regular
 
     def get_refund_percentage(self):
-        return 50  
+        return 50
 
     def get_cancellation_time_policy(self):
         return 24
 
-    def get_expiry(self):
-        return 365
-
-
-
+    def get_expiry(self, membership_period):
+        return datetime.now(timezone.utc) + relativedelta(months=membership_period)
 class SilverMembership(Membership):
     def get_membership_code(self):
         return MembershipCodeEnum.SILVER.name
-    
+
     def get_membership_price(self):
         return 100
-    
+
     def get_ticket_discount_percentage(self):
         return 10
 
@@ -78,17 +76,17 @@ class SilverMembership(Membership):
     def get_cancellation_time_policy(self):
         return 12
 
-    def get_expiry(self):
-        return 365
-    
+    def get_expiry(self, membership_period):
+        return datetime.now(timezone.utc) + relativedelta(months=membership_period)
+
 
 class GoldMembership(Membership):
     def get_membership_code(self):
         return MembershipCodeEnum.GOLD.name
-    
+
     def get_membership_price(self):
         return 300
-    
+
     def get_ticket_discount_percentage(self):
         return 15
 
@@ -101,10 +99,8 @@ class GoldMembership(Membership):
     def get_cancellation_time_policy(self):
         return 0
 
-    def get_expiry(self):
-        return 365
-
-
+    def get_expiry(self, membership_period):
+        return datetime.now(timezone.utc) + relativedelta(months=membership_period)
 class MembershipCodeEnum(Enum):
     REGULAR = 'REGULAR',
     SILVER = 'SILVER',
