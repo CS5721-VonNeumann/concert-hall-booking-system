@@ -171,7 +171,6 @@ def add_seats_to_hall(request: HttpRequest):
         return JsonResponse({"error": "hall_id and seat_numbers are required"}, status=400)
 
     existing_seats = set(Seat.objects.filter(hall=hall).values_list("seat_number", flat=True))
-    print(existing_seats)
     new_seat_numbers = [num for num in seat_numbers if num not in existing_seats]
 
     Seat.objects.bulk_create([
