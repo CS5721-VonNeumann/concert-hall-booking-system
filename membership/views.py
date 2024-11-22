@@ -8,6 +8,9 @@ from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from membership.models import CustomerMembership
 from membership.serializers import PurchaseMembershipSerializer
 from membership.services import get_membership_factory
+from payment_gateway.facade import PaymentGatewayFacade
+from payment_gateway.models import TransactionTypes
+from payment_gateway.services import create_transaction
 from users.middleware import get_current_user
 from users.models import Customer
 
@@ -29,21 +32,34 @@ def purchaseMembership(request: HttpRequest):
     membership_instance = factory.create_membership()
 
     try:
-        # Save the membership type to the user's profile
-        CustomerMembership.objects.create(
-            customer=customer,
-            membership_type=membership_instance.get_membership_code(),
-            price=membership_instance.get_membership_price(),
-            expiry=membership_instance.get_expiry(serializer.data['membership_period'])
-        )
+        payment_gateway = PaymentGatewayFacade()
+        if bill_amount := payment_gateway.get_membership_bill_amount(membership_instance.get_membership_price()):
+            # Save the membership type to the user's profile
+            CustomerMembership.objects.create(
+                customer=customer,
+                membership_type=membership_instance.get_membership_code(),
+                price=membership_instance.get_membership_price(),
+                expiry=membership_instance.get_expiry(serializer.data['membership_period'])
+            )
+            create_transaction(customer, TransactionTypes.MEMBERSHIP_PURCHASED, bill_amount)
+
+            return JsonResponse(
+                {
+                    "Amount": bill_amount,
+                    "Success": "Membership purchase is Successful"
+                },
+                status=HTTP_200_OK
+            )
         return JsonResponse(
-            {"Success": "Membership purchase is Successful"},
-            status=HTTP_200_OK
-        )
+                {
+                    "Failure": "Membership amount not found.",
+                },
+                status=HTTP_400_BAD_REQUEST
+            )
     except Exception as exc:
         return JsonResponse(
             {
-                "Faliure": "Membership purchase is unsuccessful.",
+                "Failure": "Membership purchase is unsuccessful.",
                 "Error": str(exc)
             },
             status=HTTP_400_BAD_REQUEST
