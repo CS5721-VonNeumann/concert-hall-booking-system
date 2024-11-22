@@ -11,7 +11,7 @@ class Customer(models.Model):
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name} (Customer)"
 
-class ShowProducer(models.Model):
+class ShowProducer(models.Model, Observer):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default="")
     phone = models.CharField(max_length=15, default="")
 

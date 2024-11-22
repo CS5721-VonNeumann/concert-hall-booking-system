@@ -1,9 +1,16 @@
 import json
 from django.http import JsonResponse, HttpRequest
 from django.shortcuts import get_object_or_404
-from .models import Hall, Venue, Slot, Category, HallSupportsSlot, HallSupportsCategory
+from .models import Hall, Venue, Slot, Category, HallSupportsSlot, HallSupportsCategory, Seat
+from .seattypes import SeatTypeEnum
 from show_manager.models import Show
 from django.forms.models import model_to_dict
+from django.db.models import F
+from users.middleware import get_current_user
+from rest_framework.decorators import permission_classes
+from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
+from .serializers import AddSeatsToHallSerializer, ChangeSeatTypeSerializer
 
 def create_hall(request: HttpRequest):
     if request.method == 'POST':
@@ -146,3 +153,88 @@ def get_halls(request: HttpRequest):
             print(e)
     
     return JsonResponse({"error": "Invalid request method."}, status=405)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def add_seats_to_hall(request: HttpRequest):
+    user = get_current_user()
+    if not user.is_superuser:
+        return JsonResponse({"error": "Permission denied"}, status=403)
+    
+    body = json.loads(request.body)
+
+    # Validate input with serializer
+    serializer = AddSeatsToHallSerializer(data=body)
+    serializer.is_valid(raise_exception=True)
+    validated_data = serializer.validated_data
+
+    hall = get_object_or_404(Hall, id=validated_data["hall_id"])
+    seat_numbers = validated_data["seat_numbers"]
+
+    existing_seats = set(Seat.objects.filter(hall=hall).values_list("seat_number", flat=True))
+    new_seat_numbers = [num for num in seat_numbers if num not in existing_seats]
+
+    Seat.objects.bulk_create([
+        Seat(seat_number=num, hall=hall) for num in new_seat_numbers
+    ])
+
+    if len(new_seat_numbers):
+        hall.hall_capacity = F('hall_capacity') + len(new_seat_numbers)
+        hall.save()
+
+    return JsonResponse({
+        "message": f"Added {len(new_seat_numbers)} seats to hall {hall.hall_name}",
+        "existing_seats_skipped": len(seat_numbers) - len(new_seat_numbers),
+    }, status=200)
+
+        
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def change_seat_type(request: HttpRequest):
+    user = get_current_user()
+    if not user.is_superuser:
+        return JsonResponse({"error": "Permission denied"}, status=403)
+    
+    body = json.loads(request.body)
+    # Validate input with serializer
+    serializer = ChangeSeatTypeSerializer(data=body)
+    serializer.is_valid(raise_exception=True)
+    validated_data = serializer.validated_data
+
+    hall = get_object_or_404(Hall, id=validated_data["hall_id"])
+    seat_updates = validated_data["seat_updates"]
+
+    seat_types = {i.name: i.value for i in SeatTypeEnum}
+    invalid_updates = []
+    updated_count = 0
+
+    for update in seat_updates:
+        seat_number = update.get("seat_number")
+        seat_type = update.get("seat_type")
+
+        if not seat_number:
+            update['reason'] = "Invalid seat number"
+            invalid_updates.append(update)
+            continue
+
+        if not seat_type or seat_type not in seat_types:
+            update['reason'] = "Invalid seat type"
+            invalid_updates.append(update)
+            continue
+
+        seat = Seat.objects.filter(hall=hall, seat_number=seat_number).first()
+        if seat:
+            seat.seat_type = seat_type
+            seat.save()
+            updated_count += 1
+        else:
+            update['reason'] = "Seat does not exist"
+            invalid_updates.append(update)
+
+    return JsonResponse({
+        "message": f"Updated {updated_count} seats in hall {hall.hall_name}",
+        "invalid_updates": invalid_updates,
+    }, status=200)
+    
+        
