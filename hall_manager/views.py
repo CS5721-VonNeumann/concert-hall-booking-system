@@ -10,6 +10,7 @@ from users.middleware import get_current_user
 from rest_framework.decorators import permission_classes
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
+from .serializers import AddSeatsToHallSerializer, ChangeSeatTypeSerializer
 
 def create_hall(request: HttpRequest):
     if request.method == 'POST':
@@ -162,13 +163,13 @@ def add_seats_to_hall(request: HttpRequest):
     
     body = json.loads(request.body)
 
-    hall_id = body.get('hall_id')
-    hall = get_object_or_404(Hall, id=hall_id)
+    # Validate input with serializer
+    serializer = AddSeatsToHallSerializer(data=body)
+    serializer.is_valid(raise_exception=True)
+    validated_data = serializer.validated_data
 
-    seat_numbers = body.get('seat_numbers')
-    
-    if not hall_id or not seat_numbers:
-        return JsonResponse({"error": "hall_id and seat_numbers are required"}, status=400)
+    hall = get_object_or_404(Hall, id=validated_data["hall_id"])
+    seat_numbers = validated_data["seat_numbers"]
 
     existing_seats = set(Seat.objects.filter(hall=hall).values_list("seat_number", flat=True))
     new_seat_numbers = [num for num in seat_numbers if num not in existing_seats]
@@ -196,13 +197,13 @@ def change_seat_type(request: HttpRequest):
         return JsonResponse({"error": "Permission denied"}, status=403)
     
     body = json.loads(request.body)
-    hall_id = body.get("hall_id")
-    hall = get_object_or_404(Hall, id=hall_id)
+    # Validate input with serializer
+    serializer = ChangeSeatTypeSerializer(data=body)
+    serializer.is_valid(raise_exception=True)
+    validated_data = serializer.validated_data
 
-    seat_updates = body.get("seat_updates")  # Expecting a list of {"seat_number": int, "seat_type": str}
-
-    if not hall_id or not seat_updates:
-        return JsonResponse({"error": "hall_id and seat_updates are required"}, status=400)
+    hall = get_object_or_404(Hall, id=validated_data["hall_id"])
+    seat_updates = validated_data["seat_updates"]
 
     seat_types = {i.name: i.value for i in SeatTypeEnum}
     invalid_updates = []
