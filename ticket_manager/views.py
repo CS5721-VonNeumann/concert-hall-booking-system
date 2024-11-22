@@ -3,41 +3,24 @@ import json
 from django.http import HttpRequest, JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND
 
-from payment_gateway.facade import PaymentGatewayFacade
-from payment_gateway.models import TransactionTypes
-from payment_gateway.services import create_transaction
 from users.middleware import get_current_user
 from users.models import Customer
-from .serializers import BookTicketSerializer
 from .services import return_available_seats, create_ticket
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def bookTickets(request: HttpRequest):
     customer = Customer.objects.get(user=get_current_user())
+
     data = json.loads(request.body)
+    show_id = data.get('show_id')
+    seats = data.get('seats')  # Array of seat IDs or numbers
 
-    serializer = BookTicketSerializer(data=data)
-    serializer.is_valid(raise_exception=True)
+    if seat_objs := return_available_seats(show_id, seats):
+        # TODO: payment gateway
+        if tickets := create_ticket(customer, show_id, seat_objs):
+            return JsonResponse({"ticket_ids": list(tickets)})
+        return JsonResponse({"error": "Something went wrong creating tickets."}, status=400)
 
-    if seat_objs := return_available_seats(serializer.data['show_obj'], serializer.data['seats']):
-
-        payment_gateway = PaymentGatewayFacade()
-        if bill_amount := payment_gateway.get_ticket_bill_amount(customer, seat_objs):
-            
-            if tickets := create_ticket(customer, serializer.data['show_obj'], seat_objs):
-                
-                create_transaction(customer, TransactionTypes.TICKET_PURCHASED, bill_amount)
-                return JsonResponse({
-                    "ticket_ids": list(tickets),
-                    "total_amount": bill_amount
-                    }, status=HTTP_200_OK)
-                    
-            
-            return JsonResponse({"error": "Something went wrong creating tickets."}, status=HTTP_404_NOT_FOUND)
-        
-        return JsonResponse({"error": "Payment Failed."}, status=HTTP_404_NOT_FOUND)
-
-    return JsonResponse({"error": "Seat not available."}, status=HTTP_404_NOT_FOUND)
+    return JsonResponse({"error": "Seat not available."}, status=404)
