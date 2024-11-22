@@ -12,7 +12,6 @@ STATUS_CLASSES = {
     ShowStatusEnum.REJECTED.name: RejectedStatus,
     ShowStatusEnum.CANCELLED.name: CancelledStatus
 }
-
 class Show(models.Model, Subject):
     name = models.CharField(max_length=50)
     has_intermission = models.BooleanField()

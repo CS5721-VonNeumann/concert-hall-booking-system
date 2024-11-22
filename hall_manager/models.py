@@ -1,3 +1,4 @@
+from datetime import time
 from django.db import models
 from .seattypes import SeatTypeEnum, SeatType, RegularSeatType, PremiumSeatType
 
@@ -6,6 +7,12 @@ SEAT_TYPE_CLASSES = {
     SeatTypeEnum.PREMIUM.name: PremiumSeatType,
 }
 
+TIMING_TO_TIME = {
+    'MORNING': time(9, 0),   # 9:00 AM
+    'NOON': time(12, 0),     # 12:00 PM
+    'EVENING': time(18, 0),  # 6:00 PM
+    'NIGHT': time(21, 0)     # 9:00 PM
+    }
 class Slot(models.Model):
     TIMING_CHOICES = [
         ('MORNING', 'MORNING'),
