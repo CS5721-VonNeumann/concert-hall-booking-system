@@ -27,6 +27,7 @@ urlpatterns = [
     path("ticket_manager/", include('ticket_manager.urls')),
     path("notifications/", include('notifications.urls')),
     path("membership/", include('membership.urls')),
+    path("payment_gateway/", include('payment_gateway.urls')),
     path('api/', include('users.urls')),
 ]
 
