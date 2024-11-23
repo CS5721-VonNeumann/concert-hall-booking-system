@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     "hall_manager",
     "ticket_manager",
     "notifications",
+    "membership",
+    "payment_gateway",
     "celery",
     "django_celery_beat",
     "django_celery_results",

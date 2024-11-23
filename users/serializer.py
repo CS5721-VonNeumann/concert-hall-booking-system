@@ -62,10 +62,11 @@ class ShowProducerSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
     first_name = serializers.CharField(write_only=True)
     last_name = serializers.CharField(write_only=True)
+    organisation = serializers.CharField(write_only=True)  # Organisation field
 
     class Meta:
         model = ShowProducer
-        fields = ['email', 'phone', 'password', 'first_name', 'last_name']
+        fields = ['email', 'phone', 'password', 'first_name', 'last_name', 'organisation']
 
     def validate_email(self, value):
         # Check if email already exists
@@ -81,11 +82,18 @@ class ShowProducerSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Phone number must contain only digits and be 10-20 characters long.")
         return value
 
+    def validate_organisation(self, value):
+        # Ensure organisation is not empty
+        if not value.strip():
+            raise serializers.ValidationError("Organisation cannot be blank.")
+        return value
+
     def create(self, validated_data):
         """ Create a user and show producer instance """
         password = validated_data.pop('password')
         first_name = validated_data.pop('first_name')
         last_name = validated_data.pop('last_name')
+        organisation = validated_data.pop('organisation')
         
         # Create User instance
         user = User.objects.create_user(
@@ -99,8 +107,7 @@ class ShowProducerSerializer(serializers.ModelSerializer):
         # Create ShowProducer instance linked to User instance
         show_producer = ShowProducer.objects.create(
             user=user,
-            phone=validated_data['phone']
+            phone=validated_data['phone'],
+            organisation=organisation
         )
         return show_producer
-
-
