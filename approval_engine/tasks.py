@@ -1,6 +1,6 @@
 from celery import shared_task
 from show_manager.models import Show
-from .engine import ApprovalEngine
+from .engine_cor import ApprovalEngine
 
 @shared_task
 def handle_show_request(show_id):
