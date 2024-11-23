@@ -15,12 +15,14 @@ from .models import Customer, ShowProducer
 def register_customer(request):
     serializer = CustomerUserSerializer(data=request.data)
     if serializer.is_valid():
-        # Save the user and customer data
-        customer_user = serializer.save()
-
+        try:
+            # Save the user and customer data
+            customer_user = serializer.save()
+        except:
+            return Response({"error": "An unexpected error occurred while registering the customer."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         # Generate token for the created user
         token, created = Token.objects.get_or_create(user=customer_user.user)
-        print(hasattr(customer_user,))
         return Response({"token": token.key}, status=status.HTTP_201_CREATED)
     
     # If the data is invalid, return a 400 response with errors
@@ -33,18 +35,18 @@ def register_showproducer(request):
     
     # Validate the incoming data
     if serializer.is_valid():
-        # Save the show producer instance
-        show_producer = serializer.save()
+        try:
+            show_producer = serializer.save()
+        except Exception as e:
+            return Response({"error": "An unexpected error occurred while registering the show producer."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         # Create a token for the user associated with this show producer
         token, created = Token.objects.get_or_create(user=show_producer.user)
-
-        # Return a response with the token
-        return Response({"token": token.key}, status=status.HTTP_201_CREATED)
+        return Response({"message": "Show producer registered successfully.", "token": token.key}, status=status.HTTP_201_CREATED)
     
     # Return validation errors if the data is invalid
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-         
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
