@@ -2,7 +2,7 @@ from django.db import models
 from users.models import ShowProducer
 from hall_manager.models import Hall, Slot, Category
 from .showstatuses import ShowStatus, PendingStatus, ScheduledStatus, CompletedStatus, RejectedStatus, CancelledStatus, ShowStatusEnum
-from shared.interfaces import Subject
+from shared.interfaces import Subject, MultiBaseMeta
 
 # keep enums in a single file together enums.py
 STATUS_CLASSES = {
@@ -13,7 +13,7 @@ STATUS_CLASSES = {
     ShowStatusEnum.CANCELLED.name: CancelledStatus
 }
 
-class Show(models.Model, Subject):
+class Show(models.Model, Subject, metaclass=MultiBaseMeta):
     name = models.CharField(max_length=50)
     has_intermission = models.BooleanField()
 
@@ -24,6 +24,10 @@ class Show(models.Model, Subject):
     slot = models.ForeignKey(Slot, on_delete=models.CASCADE, null=True, related_name='shows')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, related_name="shows")
     show_producer = models.ForeignKey(ShowProducer, on_delete=models.SET_NULL, null=True, related_name='shows')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        Subject.__init__(self)
 
     def attach(self, observer, interest):
         if(interest == 0):

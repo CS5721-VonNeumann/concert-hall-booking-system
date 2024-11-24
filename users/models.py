@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
-from shared.interfaces import Observer
+from shared.interfaces import Observer, MultiBaseMeta
 from notifications.models import ShowProducerNotifications
 
 class Customer(models.Model):
@@ -11,7 +11,7 @@ class Customer(models.Model):
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name} (Customer)"
 
-class ShowProducer(models.Model, Observer):
+class ShowProducer(models.Model, Observer, metaclass=MultiBaseMeta):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default="")
     phone = models.CharField(max_length=15, default="")
     organisation = models.CharField(max_length=30, default="")
