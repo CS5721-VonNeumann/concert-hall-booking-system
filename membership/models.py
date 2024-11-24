@@ -14,6 +14,8 @@ class CustomerMembership(models.Model):
     price = models.FloatField(default=0)
     expiry = models.DateTimeField()
 
+    created_at = models.DateTimeField(auto_now_add=True)
+
     def get_membership_type_class(self):
         if self.membership_type == MembershipTypeEnum.REGULAR.name:
             return RegularMembership()
@@ -25,12 +27,15 @@ class CustomerMembership(models.Model):
             return None
         
     @staticmethod
-    def get_latest_valid_membership(customer):
+    def get_latest_valid_membership_instance(customer):
     # Filter memberships by expiry date and order by expiry descending
-        return (
+        latest_membership = (
             customer.customermemberships.filter(expiry__gt=now())  # Filter memberships whose expiry is in the future
             .order_by('-expiry')  # Order by expiry descending to get the latest first
-            .first()  # Get the first result
+            .first()
         )
 
-
+        if latest_membership:
+            return latest_membership.get_membership_type_class()
+        else:
+            return RegularMembership()

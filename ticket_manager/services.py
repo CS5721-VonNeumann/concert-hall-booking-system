@@ -6,7 +6,8 @@ def return_available_seats(show_obj, seat_list: list):
 
     tickets = Ticket.objects.filter(
         show = show_obj,
-        seat__seat_number__in = seat_list
+        seat__seat_number__in = seat_list,
+        isCancelled = False
     )
 
     if tickets.exists():
@@ -23,14 +24,15 @@ def return_available_seats(show_obj, seat_list: list):
     return False
 
 
-def create_ticket(customer:Customer, show_obj, seat_objs):
+def create_ticket(customer:Customer, show_obj, seat_objs, price_per_ticket):
     try:
         ticket_ids =[]
         for seat in seat_objs:
             ticket = Ticket.objects.create(
                 customer = customer,
                 show = show_obj,
-                seat = seat
+                seat = seat,
+                price = price_per_ticket[seat.id]
             )
             ticket_ids.append(ticket.id)
 
