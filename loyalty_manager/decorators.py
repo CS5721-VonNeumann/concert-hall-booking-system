@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from membership.memberships import MembershipCodeEnum
+from ticket_manager.models import Ticket
 
 class LoyaltyDecorator(ABC):
     @abstractmethod
@@ -11,18 +11,18 @@ class RegularLoyalty(LoyaltyDecorator):
         return 10
 
 class MembershipLoyaltyDecorator(LoyaltyDecorator):
-    def __init__(self, loyalty_decorator: LoyaltyDecorator, membership_type):
+    def __init__(self, loyalty_decorator: LoyaltyDecorator, customer_membership):
         self.loyalty_decorator = loyalty_decorator
-        self.membership_type = membership_type
+        self.customer_membership = customer_membership
 
     def get_loyalty_points(self):
-        regular_points = self.loyalty_decorator.get_loyalty_points()
+        loyalty_points = self.loyalty_decorator.get_loyalty_points()
+        membership_type_class = self.customer_membership.get_membership_type_class()
 
-        if self.membership.type == MembershipCodeEnum.GOLD:
-            return regular_points + 50
-        elif self.membership.type == MembershipCodeEnum.SILVER:
-            return regular_points + 25
-        return regular_points
+        loyalty_booster = membership_type_class.get_loyalty_booster()
+
+        total_loyalty_points = loyalty_points * loyalty_booster
+        return total_loyalty_points
 
 class NewCustomerLoyaltyDecorator(LoyaltyDecorator):
     def __init__(self, loyalty_decorator: LoyaltyDecorator, customer):
@@ -30,8 +30,9 @@ class NewCustomerLoyaltyDecorator(LoyaltyDecorator):
         self.customer = customer
 
     def get_loyalty_points(self):
-        regular_points = self.loyalty_decorator.get_loyalty_points()
+        loyalty_points = self.loyalty_decorator.get_loyalty_points()
+        is_existing_customer = not Ticket.is_issued_to_customer(self.customer)
 
-        if self.customer.is_new:
-            return regular_points + 100
-        return regular_points
+        if is_existing_customer:
+            return loyalty_points * 1.25
+        return loyalty_points

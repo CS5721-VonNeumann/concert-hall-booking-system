@@ -6,7 +6,8 @@ from membership.memberships import (
     MembershipTypeEnum, 
     SilverMembership,
     RegularMembership
-) 
+)
+from loyalty_manager.decorators import MembershipLoyaltyDecorator, NewCustomerLoyaltyDecorator, RegularLoyalty
 
 class CustomerMembership(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="customermemberships")
@@ -24,6 +25,23 @@ class CustomerMembership(models.Model):
         else:
             return None
         
+    def calculate_loyalty_points(self):
+        latest_valid_membership = self.get_latest_valid_membership(self.customer)
+
+        # If the customer has no active membership, no loyalty points calculated
+        if not latest_valid_membership:
+            return
+
+        regular_loyalty = RegularLoyalty()
+
+        new_customer_loyalty = NewCustomerLoyaltyDecorator(regular_loyalty, self.customer)
+        
+        loyalty_with_membership = MembershipLoyaltyDecorator(new_customer_loyalty, latest_valid_membership)
+
+        total_loyalty_points = loyalty_with_membership.get_loyalty_points()
+        self.customer.loyalty_points = total_loyalty_points
+        self.customer.save()
+
     @staticmethod
     def get_latest_valid_membership(customer):
     # Filter memberships by expiry date and order by expiry descending

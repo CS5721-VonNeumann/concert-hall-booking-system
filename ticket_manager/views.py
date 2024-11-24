@@ -10,6 +10,7 @@ from payment_gateway.models import TransactionTypes
 from payment_gateway.services import create_transaction
 from users.middleware import get_current_user
 from users.models import Customer
+from membership.models import CustomerMembership
 from .serializers import BookTicketSerializer
 from .services import return_available_seats, create_ticket
 
@@ -17,25 +18,28 @@ from .services import return_available_seats, create_ticket
 @permission_classes([IsAuthenticated])
 def bookTickets(request: HttpRequest):
     customer = Customer.objects.get(user=get_current_user())
+    customer_membership = CustomerMembership.objects.filter(customer=customer).first()
+
     data = json.loads(request.body)
 
     serializer = BookTicketSerializer(data=data)
     serializer.is_valid(raise_exception=True)
 
     if seat_objs := return_available_seats(serializer.data['show_obj'], serializer.data['seats']):
-
         payment_gateway = PaymentGatewayFacade()
+
         if bill_amount := payment_gateway.get_ticket_bill_amount(customer, seat_objs):
-            
+
+            customer_membership.calculate_loyalty_points()
+
             if tickets := create_ticket(customer, serializer.data['show_obj'], seat_objs):
-                
                 create_transaction(customer, TransactionTypes.TICKET_PURCHASED, bill_amount)
+                
                 return JsonResponse({
                     "ticket_ids": list(tickets),
                     "total_amount": bill_amount
                     }, status=HTTP_200_OK)
-                    
-            
+        
             return JsonResponse({"error": "Something went wrong creating tickets."}, status=HTTP_404_NOT_FOUND)
         
         return JsonResponse({"error": "Payment Failed."}, status=HTTP_404_NOT_FOUND)
