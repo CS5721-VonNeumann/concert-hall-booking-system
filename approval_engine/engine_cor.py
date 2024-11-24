@@ -1,5 +1,5 @@
 from show_manager.models import Show
-
+from show_manager.showstatuses import PendingStatus
 class ApprovalHandler:
     """
     Abstract handler for the approval process.
@@ -63,6 +63,10 @@ class ApprovalEngine:
         Handles the show request by validating it through the chain.
         """
         try:
+            if not isinstance(self.show.get_status_instance(), PendingStatus):
+                print("Request not in pending status")
+                return
+
             is_valid, message = self.validation_chain.handle(self.show)
 
             if is_valid:

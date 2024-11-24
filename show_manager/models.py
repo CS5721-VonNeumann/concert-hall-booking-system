@@ -64,6 +64,14 @@ class Show(models.Model, Subject):
             raise Exception("Show is not in pending status")
         status_instance.transition_to_rejected()
         self.notify(interest=0, message=message)
+    
+    def cancel(self):
+        status_instance: ShowStatus = self.get_status_instance()
+        # producer is cancelling a pending show, no need for notifications
+        if(status_instance and isinstance(status_instance, PendingStatus)):
+            status_instance.transition_to_cancelled()
+
+        # TODO admin cancels a scheduled show
 
     @staticmethod
     def is_overlapping_show_exists(hall, slot):
