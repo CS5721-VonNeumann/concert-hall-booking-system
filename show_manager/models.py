@@ -77,6 +77,13 @@ class Show(models.Model, Subject, metaclass=MultiBaseMeta):
 
         # TODO admin cancels a scheduled show
 
+    def complete(self):
+        status_instance: ShowStatus = self.get_status_instance()
+        if(not isinstance(status_instance, ScheduledStatus)):
+            raise Exception("Show is not in scheduled status")
+        status_instance.transition_to_completed()
+
+
     @staticmethod
     def is_overlapping_show_exists(hall, slot):
         overlapping_shows = Show.objects.filter(
