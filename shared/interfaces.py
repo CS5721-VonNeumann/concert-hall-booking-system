@@ -1,16 +1,4 @@
-from abc import ABC, abstractmethod
-from abc import ABCMeta, abstractmethod
-from django.db import models
-
-
-# Step 1: Custom metaclass to resolve the conflict
-class MultiBaseMeta(type(models.Model), ABCMeta):
-    """
-    Custom metaclass combining Django's ModelBase and ABCMeta.
-    """
-    pass
-
-class Subject(metaclass=ABCMeta):
+class Subject():
     """
     The Subject class holds a list of observers and notifies them when there is a state change.
     """
@@ -25,15 +13,13 @@ class Subject(metaclass=ABCMeta):
         if observer in self._observers:
             self._observers.remove(observer)
 
-    @abstractmethod
     def notify(self, interest, message):
         raise NotImplementedError("Subclasses should implement this method")
 
 
-class Observer(metaclass=ABCMeta):
+class Observer():
     """
     The Observer class defines the method that will be called to update the observer when the subject changes.
     """
-    @abstractmethod
     def update(self, message):
         raise NotImplementedError("Subclasses should implement this method")
