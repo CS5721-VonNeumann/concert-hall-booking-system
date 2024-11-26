@@ -15,6 +15,8 @@ flower = "*"
 djangorestframework = "*"
 django-celery-beat = "*"
 django-celery-results = "*"
+pytest = "*"
+pytest-django = "*"
 
 [dev-packages]
 
