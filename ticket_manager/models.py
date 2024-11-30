@@ -2,7 +2,7 @@ from decimal import Decimal
 from django.db import models
 from django.core.validators import MinValueValidator
 from users.models import Customer
-from hall_manager.models import Hall,Seat
+from hall_manager.models import Seat
 from show_manager.models import Show
 
 # Create your models here.
@@ -23,3 +23,7 @@ class Ticket(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
+    @staticmethod
+    def is_issued_to_customer(customer):
+        # check if a customer has any ticket purchases
+        return Ticket.objects.filter(customer=customer).exists()
