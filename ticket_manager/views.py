@@ -1,11 +1,13 @@
 import json
 from django.core.paginator import Paginator
 from django.http import HttpRequest, JsonResponse
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND
 
+from config.utils import get_query_param_schema
 from payment_gateway.facade import PaymentGatewayFacade
 from users.middleware import get_current_user
 from users.models import Customer
@@ -13,6 +15,11 @@ from .models import Ticket
 from .serializers import BookTicketSerializer, TicketHistorySerializer
 from .services import return_available_seats, create_ticket
 
+
+@swagger_auto_schema(
+    request_body=BookTicketSerializer,
+    method='POST'
+)
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def bookTickets(request: HttpRequest):
@@ -46,6 +53,13 @@ def bookTickets(request: HttpRequest):
     return JsonResponse({"error": "Seat not available."}, status=HTTP_404_NOT_FOUND)
 
 
+@swagger_auto_schema(
+    manual_parameters=[
+        get_query_param_schema("page", required=False),
+        get_query_param_schema("limit", required=False)
+    ],
+    method='GET'
+)
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_ticket_history(request: HttpRequest):
