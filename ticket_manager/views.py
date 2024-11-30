@@ -27,9 +27,11 @@ def bookTickets(request: HttpRequest):
     if seat_objs := return_available_seats(validated_data['show_obj'], validated_data['seats']):
 
         payment_gateway = PaymentGatewayFacade()
-        if bill_amount := payment_gateway.get_ticket_bill_amount(customer, seat_objs):
+        price_per_ticket, bill_amount = payment_gateway.get_ticket_bill_amount(customer, seat_objs)
+        
+        if bill_amount:
             
-            if tickets := create_ticket(customer, validated_data['show_obj'], seat_objs):
+            if tickets := create_ticket(customer, validated_data['show_obj'], seat_objs, price_per_ticket):
                 
                 create_transaction(customer, TransactionTypes.TICKET_PURCHASED, bill_amount)
                 return JsonResponse({
