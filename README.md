@@ -48,6 +48,17 @@ Step 2. Run `docker compose --env-file .env.development up --build`
 
 3. ` pipenv requirements > requirements.txt` to freeze dependencies and write them to a requirements.txt file
 
+## Run Sonarqube
+
+1. Run this command to generate the latest report: 
+  ```bash
+  sonar-scanner \
+  -Dsonar.projectKey=concert-hall-booking-system \
+  -Dsonar.sources=. \
+  -Dsonar.host.url=http://localhost:9001 \
+  -Dsonar.login=sqp_c29bad0740d36d8524fac64204170f8b5cf6b0c0
+  ```
+
 ## Resources
 
 [Python Django Tutorial for Beginners - Programming with Mosh, YouTube](https://www.youtube.com/watch?v=rHux0gMZ3Eg)

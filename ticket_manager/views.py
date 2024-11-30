@@ -22,12 +22,14 @@ def bookTickets(request: HttpRequest):
     serializer = BookTicketSerializer(data=data)
     serializer.is_valid(raise_exception=True)
 
-    if seat_objs := return_available_seats(serializer.data['show_obj'], serializer.data['seats']):
+    validated_data = serializer.validated_data
+
+    if seat_objs := return_available_seats(validated_data['show_obj'], validated_data['seats']):
 
         payment_gateway = PaymentGatewayFacade()
         if bill_amount := payment_gateway.get_ticket_bill_amount(customer, seat_objs):
             
-            if tickets := create_ticket(customer, serializer.data['show_obj'], seat_objs):
+            if tickets := create_ticket(customer, validated_data['show_obj'], seat_objs):
                 
                 create_transaction(customer, TransactionTypes.TICKET_PURCHASED, bill_amount)
                 return JsonResponse({
