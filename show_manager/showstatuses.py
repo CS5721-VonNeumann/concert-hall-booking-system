@@ -43,6 +43,12 @@ class ScheduledStatus(ShowStatus):
     def get_status(self):
         return ShowStatusEnum.SCHEDULED
 
+    def transition_to_completed(self):
+        """Transition the status from 'Scheduled' to 'Completed'."""
+        self.show.status = ShowStatusEnum.COMPLETED.name
+        self.show.save()
+        print(f"Show status changed from {ShowStatusEnum.SCHEDULED.name} to {ShowStatusEnum.COMPLETED.name}")
+
 class CompletedStatus(ShowStatus):
    def get_status(self):
         return ShowStatusEnum.COMPLETED

@@ -65,6 +65,13 @@ class Show(models.Model, Subject):
         status_instance.transition_to_rejected()
         self.notify(interest=0, message=message)
 
+    def complete(self):
+        status_instance: ShowStatus = self.get_status_instance()
+        if(not isinstance(status_instance, ScheduledStatus)):
+            raise Exception("Show is not in scheduled status")
+        status_instance.transition_to_completed()
+
+
     @staticmethod
     def is_overlapping_show_exists(hall, slot):
         overlapping_shows = Show.objects.filter(
