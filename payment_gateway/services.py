@@ -1,5 +1,4 @@
 from membership.models import CustomerMembership
-from payment_gateway.models import TransactionHistory, TransactionTypes
 from ticket_manager.models import Ticket
 
 class BillService:
@@ -48,20 +47,3 @@ class RefundService:
     def get_show_refund():
         pass
 
-
-
-def create_transaction(
-        customer,
-        transaction_type,
-        amount
-):
-    if isinstance(transaction_type, TransactionTypes):
-        transaction_type = transaction_type.value
-    else:
-        raise ValueError(f"Expected an instance of {TransactionTypes.__name__}, but got {type(transaction_type)}")
-    
-    TransactionHistory.objects.create(
-        customer=customer,
-        transaction_type=transaction_type,
-        amount=amount
-    )
