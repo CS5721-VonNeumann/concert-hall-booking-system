@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-
+from .models import Ticket
 from show_manager.models import Show
 
 class BookTicketSerializer(serializers.Serializer):
@@ -24,3 +24,9 @@ class BookTicketSerializer(serializers.Serializer):
         attrs['show_obj'] = show_obj
 
         return attrs
+    
+class TicketHistorySerializer(serializers.ModelSerializer):
+    
+        class Meta:
+            model = Ticket
+            fields = '__all__'

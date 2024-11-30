@@ -12,12 +12,12 @@ def return_available_seats(show_obj, seat_list: list):
 
     if tickets.exists():
         return False
-    
+
     seat_objs = Seat.objects.filter(
-        seat_number__in = seat_list, 
-        hall = show_obj.hall
-        )
-    
+        seat_number__in=seat_list,
+        hall=show_obj.hall
+    )
+
     if seat_objs.exists():
         return seat_objs
 
@@ -26,7 +26,7 @@ def return_available_seats(show_obj, seat_list: list):
 
 def create_ticket(customer:Customer, show_obj, seat_objs, price_per_ticket):
     try:
-        ticket_ids =[]
+        ticket_ids = []
         for seat in seat_objs:
             ticket = Ticket.objects.create(
                 customer = customer,
