@@ -11,7 +11,7 @@ from users.middleware import get_current_user
 from users.models import Customer
 from .models import Ticket
 from .serializers import BookTicketSerializer, TicketHistorySerializer
-from .services import return_available_seats, create_ticket, get_query_param_schema
+from .services import return_available_seats, create_ticket
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])

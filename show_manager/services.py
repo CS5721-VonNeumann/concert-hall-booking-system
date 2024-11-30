@@ -3,7 +3,7 @@ from users.models import ShowProducer
 from hall_manager.models import Hall, Slot, Category
 from .showstatuses import ShowStatusEnum
 from approval_engine.tasks import handle_show_request
-from approval_engine.engine import ApprovalEngine
+from approval_engine.engine_cor import ApprovalEngine
 
 class ShowRequestService:
     @staticmethod
