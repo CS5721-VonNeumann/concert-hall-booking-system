@@ -13,6 +13,8 @@ django-celery = "*"
 celery = "*"
 flower = "*"
 djangorestframework = "*"
+django-celery-beat = "*"
+django-celery-results = "*"
 
 [dev-packages]
 
