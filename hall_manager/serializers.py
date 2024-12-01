@@ -1,5 +1,27 @@
 from rest_framework import serializers
-from .models import Seat, Hall, SeatTypeEnum
+from .models import Hall, Slot, Category, Venue, SeatTypeEnum
+
+class SlotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Slot
+        fields = ['id', 'date', 'timing']
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'category_name']
+
+class VenueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Venue
+        fields = ['id', 'venue_name', 'location', 'phone_number']
+
+class HallSerializer(serializers.ModelSerializer):
+    venue = serializers.PrimaryKeyRelatedField(queryset=Venue.objects.all())
+
+    class Meta:
+        model = Hall
+        fields = ['id', 'hall_name', 'hall_capacity', 'venue']
 
 class AddSeatsToHallSerializer(serializers.Serializer):
     hall_id = serializers.IntegerField()
@@ -12,7 +34,6 @@ class AddSeatsToHallSerializer(serializers.Serializer):
         if not Hall.objects.filter(id=value).exists():
             raise serializers.ValidationError("Hall with the given ID does not exist.")
         return value
-
 
 class ChangeSeatTypeSerializer(serializers.Serializer):
     hall_id = serializers.IntegerField()
