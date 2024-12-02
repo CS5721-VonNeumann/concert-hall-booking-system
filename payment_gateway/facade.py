@@ -6,7 +6,8 @@ class PaymentGatewayFacade:
         self.refund_service = RefundService()
 
     def get_ticket_bill_amount(self, customer_obj, seat_objs):
-        return self.bill_service.get_ticket_bill_amount(customer_obj, seat_objs)
+        price_per_ticket, bill_amount =  self.bill_service.get_ticket_bill_amount(customer_obj, seat_objs)
+        return price_per_ticket, bill_amount
     
     def get_membership_bill_amount(self, membership_price):
         return self.bill_service.get_membership_bill_amount(membership_price)
