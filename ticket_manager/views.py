@@ -20,7 +20,7 @@ from .command import CancelTicketCommand, RefundCommand
 from .services import return_available_seats, create_ticket, TicketCommandControl
 from .serializers import BookTicketSerializer, TicketSalesRequestSerializer,TicketSerializer, TicketHistorySerializer, TicketCancellationSerializer
 from .ticketsalestrategy import AdminTicketSalesStrategy,ShowProducerTicketSalesStrategy,TicketSalesContext
-
+from config.logger import logger
 
 @swagger_auto_schema(
     request_body=BookTicketSerializer,
@@ -102,7 +102,7 @@ def customer_view_tickets(request):
                 "time": ticket.getShowTimimg()
             }
             serialized_tickets.append(serialized_ticket)
-        
+        logger.info(f"{get_current_user()} viewed booked tickets")
         return JsonResponse(serialized_tickets, safe=False)  
 
     except PermissionError as e:
@@ -116,6 +116,7 @@ def cancel_ticket(request):
         return Response({"error": "The logged-in user is not a customer."}, status=403)
     
     customer = user.customer
+    print(customer)
     serializer = TicketCancellationSerializer(data=request.data, context={"request": request})
     if serializer.is_valid():
         tickets = serializer.context["validated_tickets"]
@@ -130,6 +131,8 @@ def cancel_ticket(request):
                 refund_command=refund_command
             )
             canceled_tickets = service.execute()
+            logger.info(f"Tickets {tickets} Cancelled by {customer.user.email}")
+
             # Return a success response
             return Response({
                 "status": "success",
@@ -138,6 +141,7 @@ def cancel_ticket(request):
             }, status=200)
 
         except Exception as e:
+            logger.error(str(e))
             return Response({
                 "status": "error",
                 "message": str(e)
@@ -169,7 +173,7 @@ def view_ticket_sales(request):
         context = TicketSalesContext(strategy)
         ticket_sales = context.fetch_sales(show_name, slot_id)
         serialized_sales = TicketSerializer(ticket_sales, many=True).data
-
+        logger.info(f"{user} has viewed ticket sales")
         return JsonResponse(serialized_sales, safe=False)
 
     except Exception as e:
