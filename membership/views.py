@@ -1,11 +1,13 @@
 import json
 from django.core.paginator import Paginator
 from django.http import HttpRequest, JsonResponse
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 
+from config.utils import get_query_param_schema
 from membership.models import CustomerMembership
 from membership.serializers import PurchaseMembershipSerializer, MembershipPurchaseHistorySerializer
 from membership.services import get_membership_factory
@@ -13,6 +15,11 @@ from payment_gateway.facade import PaymentGatewayFacade
 from users.middleware import get_current_user
 from users.models import Customer
 
+
+@swagger_auto_schema(
+    request_body=PurchaseMembershipSerializer,
+    method='POST'
+)
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def purchaseMembership(request: HttpRequest):
@@ -64,6 +71,13 @@ def purchaseMembership(request: HttpRequest):
         )
     
 
+@swagger_auto_schema(
+    manual_parameters=[
+        get_query_param_schema("page", required=False),
+        get_query_param_schema("limit", required=False)
+    ],
+    method='GET'
+)
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_membership_history(request: HttpRequest):

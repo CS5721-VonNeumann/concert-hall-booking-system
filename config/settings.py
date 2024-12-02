@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'periodic_task_initializer',
     "rest_framework",
     "rest_framework.authtoken",
+    'drf_yasg',
 ]
 
 REST_FRAMEWORK = {
@@ -168,3 +169,12 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Default backend
     # Add any custom backends here
 ]
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'api_key': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    }
+}
