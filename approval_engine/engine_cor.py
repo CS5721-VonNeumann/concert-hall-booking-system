@@ -1,5 +1,5 @@
 from show_manager.models import Show
-
+from show_manager.showstatuses import PendingStatus
 class ApprovalHandler:
     """
     Abstract handler for the approval process.
@@ -61,14 +61,16 @@ class ApprovalEngine:
     def handle_show_request(self):
         """
         Handles the show request by validating it through the chain.
+        If error occurs, the shared task will retry 3 times and send to DLQ on further failure
         """
-        try:
-            is_valid, message = self.validation_chain.handle(self.show)
+        if not isinstance(self.show.get_status_instance(), PendingStatus):
+            print("Request not in pending status")
+            return
 
-            if is_valid:
-                self.show.schedule()
-            else:
-                self.show.reject(message)
-        except Exception as e:
-            print(f"Error processing show request: {e}")
-            self.show.reject("Error in validating request")
+        is_valid, message = self.validation_chain.handle(self.show)
+
+        if is_valid:
+            self.show.schedule()
+        else:
+            self.show.reject(message)
+        
