@@ -45,5 +45,6 @@ urlpatterns = [
     path("membership/", include('membership.urls')),
     path("payment_gateway/", include('payment_gateway.urls')),
     path('api/', include('users.urls')),
+    path('recommendations/', include('recommendation_engine.urls')),
     path('swagger/', schema_view.with_ui('swagger',cache_timeout=0), name='schema-swagger-ui'),
 ]
