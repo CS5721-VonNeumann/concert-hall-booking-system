@@ -9,7 +9,7 @@ from django.db.models import F
 from users.middleware import get_current_user
 from rest_framework.decorators import permission_classes
 from rest_framework.decorators import api_view
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import AddSeatsToHallSerializer, ChangeSeatTypeSerializer
 
 def create_hall(request: HttpRequest):
@@ -130,29 +130,29 @@ def assign_category_to_hall(request: HttpRequest):
     
     return JsonResponse({"error": "Invalid request method."}, status=405)
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
 def get_halls(request: HttpRequest):
-    if request.method == 'GET':
-        try:
-            category_id = request.GET.get('category_id')
-            category = get_object_or_404(Category, id=category_id)
+    try:
+        category_id = request.GET.get('category_id')
+        category = get_object_or_404(Category, id=category_id)
 
-            slot_id = request.GET.get('slot_id')
-            slot = get_object_or_404(Slot, id=slot_id)
+        slot_id = request.GET.get('slot_id')
+        slot = get_object_or_404(Slot, id=slot_id)
 
-            supporting_halls = Hall.get_halls_by_category_and_slot(category=category, slot=slot)
-            available_supporting_halls = []
-            
-            for hall in supporting_halls:
-                if not Show.is_overlapping_show_exists(hall=hall, slot=slot):
-                    available_supporting_halls.append(model_to_dict(hall))
+        supporting_halls = Hall.get_halls_by_category_and_slot(category=category, slot=slot)
+        available_supporting_halls = []
+        
+        for hall in supporting_halls:
+            if not Show.is_overlapping_show_exists(hall=hall, slot=slot):
+                available_supporting_halls.append(model_to_dict(hall))
 
-            return JsonResponse({
-                'halls_response': available_supporting_halls
-            }, status=200)
-        except Exception as e:
-            print(e)
-    
-    return JsonResponse({"error": "Invalid request method."}, status=405)
+        return JsonResponse({
+            'halls_response': available_supporting_halls
+        }, status=200)
+    except Exception as e:
+        print(e)
+
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
