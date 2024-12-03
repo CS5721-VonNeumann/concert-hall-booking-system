@@ -38,23 +38,23 @@ def set_recommendation_strategy(request):
 @api_view(['GET'])
 def get_recommendations(request):
     """
-    View to fetch recommendations based on the chosen strategy.
+    View to fetch recommended shows based on the chosen strategy.
     """
     try:
         # Fetch the global strategy
-        strategy = GlobalRecommendationContext.get_strategy()
+        current_strategy = GlobalRecommendationContext.get_strategy()
         location = request.GET.get('location', '').strip("'\" ")
 
         # Call the recommend method of the strategy
-        if isinstance(strategy, LocationBasedRecommendation):
-            recommendations = strategy.recommend(location)
-        elif isinstance(strategy, TrendingRecommendation):
-            recommendations = strategy.recommend()
+        if isinstance(current_strategy, LocationBasedRecommendation):
+            recommended_shows = current_strategy.recommend(location)
+        elif isinstance(current_strategy, TrendingRecommendation):
+            recommended_shows = current_strategy.recommend()
         else:
-            recommendations = strategy.recommend()
+            recommended_shows = current_strategy.recommend()
 
         return Response(
-            {"message": "Recommendations fetched successfully.", "recommendations": recommendations},
+            {"message": "Recommendations fetched successfully.", "recommendations":recommended_shows},
             status=status.HTTP_200_OK,
         )
     except ValueError as e:
