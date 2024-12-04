@@ -11,10 +11,10 @@ from loyalty_manager.decorators import MembershipLoyaltyDecorator, NewCustomerLo
 
 class CustomerMembership(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="customermemberships")
-    membership_type = models.CharField(max_length=10)
-    price = models.FloatField(default=0)
-    expiry = models.DateTimeField()
-
+    membership_type = models.CharField(max_length=10, default=MembershipTypeEnum.REGULAR.name)
+    price = models.FloatField(default=0.0)
+    expiry = models.DateTimeField(blank=True, null=True)
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def get_membership_type_class(self):
@@ -26,7 +26,7 @@ class CustomerMembership(models.Model):
             return GoldMembership()
         else:
             return None
-        
+
     def calculate_loyalty_points(self):
         latest_valid_membership = self.get_latest_valid_membership(self.customer)
 
