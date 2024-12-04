@@ -31,8 +31,8 @@ class NewCustomerLoyaltyDecorator(LoyaltyDecorator):
 
     def get_loyalty_points(self):
         loyalty_points = self.loyalty_decorator.get_loyalty_points()
-        is_existing_customer = not Ticket.is_issued_to_customer(self.customer)
+        is_new_customer = not Ticket.is_issued_to_customer(self.customer)
 
-        if is_existing_customer:
+        if is_new_customer:
             return loyalty_points * 1.25
         return loyalty_points
