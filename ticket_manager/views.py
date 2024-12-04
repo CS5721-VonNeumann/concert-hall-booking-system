@@ -27,6 +27,7 @@ from .services import return_available_seats, create_ticket
 def bookTickets(request: HttpRequest):
     customer = Customer.objects.get(user=get_current_user())
     customer_membership = CustomerMembership.objects.filter(customer=customer).first()
+    latest_valid_membership = customer_membership.get_latest_valid_membership_instance(customer=customer)
 
     data = json.loads(request.body)
 
@@ -44,6 +45,8 @@ def bookTickets(request: HttpRequest):
         if bill_amount:
 
             if tickets := create_ticket(customer, validated_data['show_obj'], seat_objs, price_per_ticket):
+
+                customer_membership.calculate_loyalty_points(customer=customer, latest_valid_membership=latest_valid_membership)
 
                 return JsonResponse({
                     "ticket_ids": list(tickets),

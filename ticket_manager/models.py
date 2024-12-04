@@ -21,8 +21,3 @@ class Ticket(models.Model):
     isCancelled = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    @staticmethod
-    def is_issued_to_customer(customer):
-        # check if a customer has any ticket purchases
-        return Ticket.objects.filter(customer=customer).exists()

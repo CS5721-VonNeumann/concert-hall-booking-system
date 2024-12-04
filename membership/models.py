@@ -14,7 +14,6 @@ class CustomerMembership(models.Model):
     membership_type = models.CharField(max_length=10, default=MembershipTypeEnum.REGULAR.name)
     price = models.FloatField(default=0.0)
     expiry = models.DateTimeField(blank=True, null=True)
-    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def get_membership_type_class(self):
@@ -24,25 +23,24 @@ class CustomerMembership(models.Model):
             return SilverMembership()
         elif self.membership_type == MembershipTypeEnum.GOLD.name:
             return GoldMembership()
-        else:
-            return None
+        return None
 
-    def calculate_loyalty_points(self):
-        latest_valid_membership = self.get_latest_valid_membership(self.customer)
-
+    def calculate_loyalty_points(self, customer, latest_valid_membership):
         # If the customer has no active membership, no loyalty points calculated
         if not latest_valid_membership:
             return
-
+        
+        existing_loyalty_points = customer.loyalty_points or 0
         regular_loyalty = RegularLoyalty()
 
-        new_customer_loyalty = NewCustomerLoyaltyDecorator(regular_loyalty, self.customer)
+        new_customer_loyalty = NewCustomerLoyaltyDecorator(regular_loyalty, customer)
         
         loyalty_with_membership = MembershipLoyaltyDecorator(new_customer_loyalty, latest_valid_membership)
+        calculated_loyalty_points = loyalty_with_membership.get_loyalty_points()
 
-        total_loyalty_points = loyalty_with_membership.get_loyalty_points()
-        self.customer.loyalty_points = total_loyalty_points
-        self.customer.save()
+        total_loyalty_points = existing_loyalty_points + calculated_loyalty_points
+        customer.loyalty_points = total_loyalty_points
+        customer.save()
 
     @staticmethod
     def get_latest_valid_membership_instance(customer):
@@ -55,5 +53,4 @@ class CustomerMembership(models.Model):
 
         if latest_membership:
             return latest_membership.get_membership_type_class()
-        else:
-            return RegularMembership()
+        return RegularMembership()
