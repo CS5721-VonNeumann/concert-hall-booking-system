@@ -26,16 +26,15 @@ class CustomerMembership(models.Model):
         return None
 
     def calculate_loyalty_points(self, customer, latest_valid_membership):
-        # If the customer has no active membership, no loyalty points calculated
         if not latest_valid_membership:
             return
         
         existing_loyalty_points = customer.loyalty_points or 0
-        regular_loyalty = RegularLoyalty()
 
+        regular_loyalty = RegularLoyalty()
         new_customer_loyalty = NewCustomerLoyaltyDecorator(regular_loyalty, customer)
-        
         loyalty_with_membership = MembershipLoyaltyDecorator(new_customer_loyalty, latest_valid_membership)
+
         calculated_loyalty_points = loyalty_with_membership.get_loyalty_points()
 
         total_loyalty_points = existing_loyalty_points + calculated_loyalty_points
