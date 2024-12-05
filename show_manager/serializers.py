@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Show, Slot, Hall, Category
 from .showstatuses import ScheduledStatus, PendingStatus
+from .models import Show
+from hall_manager.serializers import SlotSerializer
 
 
 class CreateShowRequestSerializer(serializers.Serializer):
@@ -10,6 +12,11 @@ class CreateShowRequestSerializer(serializers.Serializer):
     has_intermission = serializers.BooleanField()
     slot_id = serializers.IntegerField()
     hall_id = serializers.IntegerField()
+
+    def __init__(self, *args, **kwargs):
+        # Accept `show_producer` as a context parameter
+        self.show_producer = kwargs.pop('show_producer', None)
+        super().__init__(*args, **kwargs)
 
     def validate(self, data):
         # Validate category existence
@@ -40,6 +47,8 @@ class CreateShowRequestSerializer(serializers.Serializer):
             show = Show.objects.filter(id=show_id).first()
             if not isinstance(show.get_status_instance(), PendingStatus):
                 raise serializers.ValidationError("Show is not in pending status.")
+            if show.show_producer != self.show_producer:
+                raise serializers.ValidationError("You do not have access to update this show")
 
         return data
 
@@ -48,6 +57,11 @@ class UpdateScheduledShowRequestSerializer(serializers.Serializer):
     show_id = serializers.IntegerField()
     name = serializers.CharField(required=False)
     has_intermission = serializers.BooleanField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        # Accept `show_producer` as a context parameter
+        self.show_producer = kwargs.pop('show_producer', None)
+        super().__init__(*args, **kwargs)
 
     def validate(self, data):
         # Validate show existence
@@ -59,11 +73,20 @@ class UpdateScheduledShowRequestSerializer(serializers.Serializer):
 
         if not isinstance(show.get_status_instance(), ScheduledStatus):
             raise serializers.ValidationError("Show is not in scheduled status.")
+        
+        if show.show_producer != self.show_producer:
+            raise serializers.ValidationError("You do not have access to update this show")
 
         return data
 
 class CancelShowRequestSerializer(serializers.Serializer):
     show_id = serializers.IntegerField()
+
+    def __init__(self, *args, **kwargs):
+        # Accept `show_producer` as a context parameter
+        self.show_producer = kwargs.pop('show_producer', None)
+        super().__init__(*args, **kwargs)
+
 
     def validate(self, data):
         # Validate show existence
@@ -75,6 +98,9 @@ class CancelShowRequestSerializer(serializers.Serializer):
 
         if not isinstance(show.get_status_instance(), PendingStatus):
             raise serializers.ValidationError("Show is not in pending status.")
+        
+        if show.show_producer != self.show_producer:
+            raise serializers.ValidationError("You do not have access to cancel this show")
 
         return data
 

@@ -6,7 +6,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND
-
 from config.utils import get_query_param_schema
 from payment_gateway.facade import PaymentGatewayFacade
 from users.middleware import get_current_user
@@ -15,7 +14,9 @@ from membership.models import CustomerMembership
 from .serializers import BookTicketSerializer
 from .models import Ticket
 from .serializers import BookTicketSerializer, TicketHistorySerializer
+from .serializers import BookTicketSerializer, TicketSalesRequestSerializer,TicketSerializer
 from .services import return_available_seats, create_ticket
+from .ticketsalestrategy import AdminTicketSalesStrategy,ShowProducerTicketSalesStrategy,TicketSalesContext
 
 
 @swagger_auto_schema(
@@ -82,3 +83,31 @@ def get_ticket_history(request: HttpRequest):
     serializer = TicketHistorySerializer(page_obj, many=True)
 
     return Response(serializer.data, status=HTTP_200_OK)
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def view_ticket_sales(request):
+    user = get_current_user()
+    serializer = TicketSalesRequestSerializer(data=request.data)
+    if not serializer.is_valid():
+        return JsonResponse({"error": serializer.errors}, status=400)
+    
+    data = serializer.validated_data
+    show_name = data["show_name"]
+    slot_id = data.get("slot_id", None)
+
+    try:
+        if user.is_superuser:
+            strategy = AdminTicketSalesStrategy()
+        elif hasattr(user, 'showproducer'):
+            strategy = ShowProducerTicketSalesStrategy()
+        else:
+            return JsonResponse({"error": "Unauthorized access"}, status=403)
+
+        context = TicketSalesContext(strategy)
+        ticket_sales = context.fetch_sales(show_name, slot_id)
+        serialized_sales = TicketSerializer(ticket_sales, many=True).data
+
+        return JsonResponse(serialized_sales, safe=False)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)

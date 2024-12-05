@@ -12,9 +12,13 @@ import json
 from .serializers import CreateShowRequestSerializer, UpdateScheduledShowRequestSerializer, CancelShowRequestSerializer, ShowSerializer
 from .services import ShowRequestService
 from django.forms.models import model_to_dict
+from drf_yasg.utils import swagger_auto_schema
+from config.utils import get_query_param_schema
 
-
-
+@swagger_auto_schema(
+    request_body=CreateShowRequestSerializer,
+    method='POST'
+)
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_update_show_request(request: HttpRequest):
@@ -22,7 +26,7 @@ def create_update_show_request(request: HttpRequest):
 
     body = json.loads(request.body)
     # Validate input with serializer
-    serializer = CreateShowRequestSerializer(data=body)
+    serializer =CreateShowRequestSerializer(data=body, show_producer=show_producer)
     serializer.is_valid(raise_exception=True)
     validated_data = serializer.validated_data
 
@@ -49,6 +53,10 @@ def create_update_show_request(request: HttpRequest):
         'show_response': model_to_dict(show)
     })
 
+@swagger_auto_schema(
+    request_body=UpdateScheduledShowRequestSerializer,
+    method='POST'
+)
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def update_scheduled_show(request: HttpRequest):
@@ -56,7 +64,7 @@ def update_scheduled_show(request: HttpRequest):
 
     body = json.loads(request.body)
     # Validate input with serializer
-    serializer = UpdateScheduledShowRequestSerializer(data=body)
+    serializer = UpdateScheduledShowRequestSerializer(data=body, show_producer=show_producer)
     serializer.is_valid(raise_exception=True)
     validated_data = serializer.validated_data
 
@@ -73,8 +81,11 @@ def update_scheduled_show(request: HttpRequest):
         'show_response': model_to_dict(show)
     })
 
-
-@api_view(["DELETE"])
+@swagger_auto_schema(
+    request_body=CancelShowRequestSerializer,
+    method='PUT'
+)
+@api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def cancel_show_request(request):
     """
@@ -84,7 +95,7 @@ def cancel_show_request(request):
 
     body = json.loads(request.body)
     # Validate input with serializer
-    serializer = CancelShowRequestSerializer(data=body)
+    serializer = CancelShowRequestSerializer(data=body, show_producer=show_producer)
     serializer.is_valid(raise_exception=True)
     validated_data = serializer.validated_data
 
@@ -93,7 +104,13 @@ def cancel_show_request(request):
 
     return Response({"message": "Show canceled successfully."}, status=status.HTTP_200_OK)
 
-
+@swagger_auto_schema(
+    manual_parameters=[
+        get_query_param_schema("page", required=False),
+        get_query_param_schema("limit", required=False)
+    ],
+    method='GET'
+)
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def list_show_requests(request):

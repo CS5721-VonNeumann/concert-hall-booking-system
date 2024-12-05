@@ -57,3 +57,4 @@ class ChangeSeatTypeSerializer(serializers.Serializer):
                 raise serializers.ValidationError(f"Invalid seat_type. Allowed values are: {seat_types}.")
 
         return data
+
