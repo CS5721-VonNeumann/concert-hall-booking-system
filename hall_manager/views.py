@@ -110,14 +110,13 @@ def get_halls(request: HttpRequest):
 
         return JsonResponse({'halls_response': available_supporting_halls}, status=200)
     except Exception as e:
-        print(e)
         return JsonResponse({"error": f"An unexpected error occurred: {str(e)}"}, status=500)
 
 @swagger_auto_schema(
     request_body=AddSeatsToHallSerializer,
-    method='POST'
+    method='PUT'
 )
-@api_view(["POST"])
+@api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def add_seats_to_hall(request: HttpRequest):
     user = get_current_user()
@@ -153,9 +152,9 @@ def add_seats_to_hall(request: HttpRequest):
         
 @swagger_auto_schema(
     request_body=ChangeSeatTypeSerializer,
-    method='POST'
+    method='PUT'
 )
-@api_view(["POST"])
+@api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def change_seat_type(request: HttpRequest):
     user = get_current_user()

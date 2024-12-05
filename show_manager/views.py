@@ -83,9 +83,9 @@ def update_scheduled_show(request: HttpRequest):
 
 @swagger_auto_schema(
     request_body=CancelShowRequestSerializer,
-    method='DELETE'
+    method='PUT'
 )
-@api_view(["DELETE"])
+@api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def cancel_show_request(request):
     """
