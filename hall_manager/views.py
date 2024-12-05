@@ -9,7 +9,9 @@ from django.db.models import F
 from users.middleware import get_current_user
 from rest_framework.decorators import permission_classes
 from rest_framework.decorators import api_view
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from .serializers import AddSeatsToHallSerializer, ChangeSeatTypeSerializer
+from drf_yasg.utils import swagger_auto_schema
 from .serializers import HallSerializer, VenueSerializer, SlotSerializer, CategorySerializer, AddSeatsToHallSerializer, ChangeSeatTypeSerializer
 from config.utils import get_query_param_schema
 
@@ -83,8 +85,8 @@ def assign_category_to_hall(request: HttpRequest):
 
 @swagger_auto_schema(
     manual_parameters=[
-        get_query_param_schema("categoryId", required=False),
-        get_query_param_schema("slotId", required=False)
+        get_query_param_schema("category_id", required=False),
+        get_query_param_schema("slot_id", required=False)
     ],
     method='GET'
 )
@@ -110,7 +112,11 @@ def get_halls(request: HttpRequest):
     except Exception as e:
         return JsonResponse({"error": f"An unexpected error occurred: {str(e)}"}, status=500)
 
-@api_view(["POST"])
+@swagger_auto_schema(
+    request_body=AddSeatsToHallSerializer,
+    method='PUT'
+)
+@api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def add_seats_to_hall(request: HttpRequest):
     user = get_current_user()
@@ -143,7 +149,12 @@ def add_seats_to_hall(request: HttpRequest):
         "existing_seats_skipped": len(seat_numbers) - len(new_seat_numbers),
     }, status=200)
 
-@api_view(["POST"])
+        
+@swagger_auto_schema(
+    request_body=ChangeSeatTypeSerializer,
+    method='PUT'
+)
+@api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def change_seat_type(request: HttpRequest):
     user = get_current_user()

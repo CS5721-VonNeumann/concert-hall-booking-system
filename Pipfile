@@ -17,6 +17,7 @@ django-celery-results = "*"
 django-celery-beat = "*"
 pytest = "*"
 pytest-django = "*"
+drf-yasg = "*"
 
 [dev-packages]
 

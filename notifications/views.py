@@ -9,7 +9,11 @@ from rest_framework.decorators import permission_classes
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_404_NOT_FOUND
+from drf_yasg.utils import swagger_auto_schema
 
+@swagger_auto_schema(
+    method='GET'
+)
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_show_producer_notifications(request: HttpRequest):
