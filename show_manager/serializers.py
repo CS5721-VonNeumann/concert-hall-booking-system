@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Show, Slot, Hall, Category
 from .showstatuses import ScheduledStatus, PendingStatus
+from .models import Show
+from hall_manager.serializers import SlotSerializer
 
 
 class CreateShowRequestSerializer(serializers.Serializer):
