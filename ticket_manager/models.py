@@ -21,3 +21,13 @@ class Ticket(models.Model):
     isCancelled = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    def cancel(self):
+        self.isCancelled = True
+        self.save()
+
+    def getShowTimimg(self):
+        return (self.show.slot.timing)
+
+    def getShowDate(self):
+        return self.show.slot.date
