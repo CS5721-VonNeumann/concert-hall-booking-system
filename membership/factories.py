@@ -1,5 +1,5 @@
 from abc import ABC,abstractmethod
-from membership.memberships import RegularMembership,SilverMembership,GoldMembership
+from membership.memberships import RegularMembership, SilverMembership, GoldMembership
 
 #define factory
 class MembershipFactory(ABC):

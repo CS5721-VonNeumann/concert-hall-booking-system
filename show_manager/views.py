@@ -9,7 +9,7 @@ from .models import Show, ShowStatusEnum, ShowProducer
 from .showstatuses import PendingStatus
 from users.models import ShowProducer
 import json
-from .serializers import CreateShowRequestSerializer, UpdateScheduledShowRequestSerializer, CancelShowRequestSerializer, ShowRequestSerializer
+from .serializers import CreateShowRequestSerializer, UpdateScheduledShowRequestSerializer, CancelShowRequestSerializer, ShowSerializer
 from .services import ShowRequestService
 from django.forms.models import model_to_dict
 from drf_yasg.utils import swagger_auto_schema
@@ -126,7 +126,7 @@ def list_show_requests(request):
     paginator = Paginator(shows, limit)
     page_obj = paginator.get_page(page)
 
-    serializer = ShowRequestSerializer(page_obj, many=True)
+    serializer = ShowSerializer(page_obj, many=True)
     return Response({
         "results": serializer.data,
         "total": paginator.count,
