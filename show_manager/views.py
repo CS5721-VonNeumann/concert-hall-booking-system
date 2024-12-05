@@ -22,7 +22,7 @@ def create_update_show_request(request: HttpRequest):
 
     body = json.loads(request.body)
     # Validate input with serializer
-    serializer = CreateShowRequestSerializer(data=body)
+    serializer =CreateShowRequestSerializer(data=body, show_producer=show_producer)
     serializer.is_valid(raise_exception=True)
     validated_data = serializer.validated_data
 
@@ -56,7 +56,7 @@ def update_scheduled_show(request: HttpRequest):
 
     body = json.loads(request.body)
     # Validate input with serializer
-    serializer = UpdateScheduledShowRequestSerializer(data=body)
+    serializer = UpdateScheduledShowRequestSerializer(data=body, show_producer=show_producer)
     serializer.is_valid(raise_exception=True)
     validated_data = serializer.validated_data
 
@@ -84,7 +84,7 @@ def cancel_show_request(request):
 
     body = json.loads(request.body)
     # Validate input with serializer
-    serializer = CancelShowRequestSerializer(data=body)
+    serializer = CancelShowRequestSerializer(data=body, show_producer=show_producer)
     serializer.is_valid(raise_exception=True)
     validated_data = serializer.validated_data
 
