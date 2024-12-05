@@ -11,6 +11,8 @@ from rest_framework.decorators import permission_classes
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import AddSeatsToHallSerializer, ChangeSeatTypeSerializer
+from drf_yasg.utils import swagger_auto_schema
+from config.utils import get_query_param_schema
 
 def create_hall(request: HttpRequest):
     if request.method == 'POST':
@@ -130,6 +132,14 @@ def assign_category_to_hall(request: HttpRequest):
     
     return JsonResponse({"error": "Invalid request method."}, status=405)
 
+
+@swagger_auto_schema(
+    manual_parameters=[
+        get_query_param_schema("category_id", required=True),
+        get_query_param_schema("slot_id", required=True),
+    ],
+    method='GET'
+)
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def get_halls(request: HttpRequest):
@@ -153,7 +163,10 @@ def get_halls(request: HttpRequest):
     except Exception as e:
         print(e)
 
-
+@swagger_auto_schema(
+    request_body=AddSeatsToHallSerializer,
+    method='POST'
+)
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def add_seats_to_hall(request: HttpRequest):
@@ -188,7 +201,10 @@ def add_seats_to_hall(request: HttpRequest):
     }, status=200)
 
         
-
+@swagger_auto_schema(
+    request_body=ChangeSeatTypeSerializer,
+    method='POST'
+)
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def change_seat_type(request: HttpRequest):
