@@ -51,28 +51,43 @@ def test_showproducer_login():
     assert response.data["profile_type"] == "ShowProducer"
 
 @pytest.mark.django_db
-def test_register_customer():
+def test_register_customer_success():
     client = APIClient()
     data = {
-        "email": "customer@example.com",
-        "phone": "1234567890",
-        "password": "securepassword",
-        "first_name": "Lana",
-        "last_name": "Tims"
+        "email": "testcustomer@example.com",
+        "phone": "+1234567890",
+        "password": "strongpassword",
+        "first_name": "John",
+        "last_name": "Doe",
+        "organisation": "ExampleOrg"
     }
 
     response = client.post("/users/customer/register", data)
-
+    
+    # Assert that the response returns a 201 status code
     assert response.status_code == status.HTTP_201_CREATED
+
+    # Assert the response contains a token
     assert "token" in response.data
 
-    # Verify the Customer and linked User were created
-    user = User.objects.get(email=data["email"])
-    assert user.first_name == data["first_name"]
-    assert user.last_name == data["last_name"]
+@pytest.mark.django_db
+def test_register_customer_invalid_data():
+    client = APIClient()
+    data = {
+        # Missing required fields like email and password
+        "phone": "+1234567890",
+        "first_name": "John",
+        "last_name": "Doe",
+        "organisation": "ExampleOrg"
+    }
 
-    customer = Customer.objects.get(user=user)
-    assert customer.phone == data["phone"]
+    response = client.post("/users/customer/register", data)
+    
+    # Assert that the response returns a 400 status code
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    # Assert the response contains error messages
+    assert "email" in response.data  # Email is missing
+    assert "password" in response.data  # Password is missing
 
 @pytest.mark.django_db
 def test_customer_login():

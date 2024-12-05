@@ -84,7 +84,11 @@ class TicketSalesRequestSerializer(serializers.Serializer):
         show_name = data.get('show_name')
         slot_id = data.get('slot_id',None)
         try:
+<<<<<<< HEAD
             Show.objects.filter(
+=======
+            show = Show.objects.get(
+>>>>>>> 29de7ab (tests - authentication, cancel ticket, book ticket, sales ticket)
                 name=show_name
                 )
         except ObjectDoesNotExist:
