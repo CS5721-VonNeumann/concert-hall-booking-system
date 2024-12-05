@@ -43,7 +43,7 @@ def purchaseMembership(request: HttpRequest):
             # Save the membership type to the user's profile
             CustomerMembership.objects.create(
                 customer=customer,
-                membership_type=membership_instance.get_membership_code(),
+                membership_type=membership_instance.get_membership_type(),
                 price=membership_instance.get_membership_price(),
                 expiry=membership_instance.get_expiry(serializer.data['membership_period'])
             )

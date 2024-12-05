@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "ticket_manager",
     "notifications",
     "membership",
+    "loyalty_manager",
     "payment_gateway",
     "celery",
     "django_celery_beat",

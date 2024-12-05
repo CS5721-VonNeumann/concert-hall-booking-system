@@ -1,23 +1,47 @@
+from django.contrib.auth import authenticate
+
 from rest_framework import status
 from rest_framework.permissions import AllowAny
-from .serializer import CustomerUserSerializer, ShowProducerSerializer
 from rest_framework.response import Response
-from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import permission_classes
+
 from .middleware import get_current_user
 from .models import Customer, ShowProducer
+from membership.serializers import CustomerMembershipSerializer
+from .serializer import CustomerUserSerializer, ShowProducerSerializer
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_customer(request):
-    serializer = CustomerUserSerializer(data=request.data)
-    if serializer.is_valid():
+    customer_serializer = CustomerUserSerializer(data=request.data)
+
+    if customer_serializer.is_valid():
         try:
             # Save the user and customer data
-            customer_user = serializer.save()
+            customer_user = customer_serializer.save()
+
+            customer_membership_data = {
+                "customer": customer_user.id, 
+                "membership_type": "REGULAR", 
+                "price": 0.0, 
+                "expiry": None
+            }
+
+            # Validate and save CustomerMembership
+            customer_membership_serializer = CustomerMembershipSerializer(data=customer_membership_data)
+
+            if customer_membership_serializer.is_valid():
+                membership = customer_membership_serializer.save()
+            else:
+                return Response(
+                    customer_membership_serializer.errors,
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
         except:
             return Response({"error": "An unexpected error occurred while registering the customer."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
@@ -26,7 +50,7 @@ def register_customer(request):
         return Response({"token": token.key}, status=status.HTTP_201_CREATED)
     
     # If the data is invalid, return a 400 response with errors
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(customer_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
