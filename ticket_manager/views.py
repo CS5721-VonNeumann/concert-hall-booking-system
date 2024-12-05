@@ -16,6 +16,7 @@ from .serializers import BookTicketSerializer
 from .models import Ticket
 from .serializers import BookTicketSerializer, TicketHistorySerializer
 from .services import return_available_seats, create_ticket
+from .template import CustomerTicketView
 
 
 @swagger_auto_schema(
@@ -82,3 +83,24 @@ def get_ticket_history(request: HttpRequest):
     serializer = TicketHistorySerializer(page_obj, many=True)
 
     return Response(serializer.data, status=HTTP_200_OK)
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def customer_view_tickets(request):
+    try:
+        customer_view = CustomerTicketView()
+        response_data = customer_view.process_request(get_current_user())
+        serialized_tickets = []
+        for ticket in response_data:
+            serialized_ticket = {
+                "show": ticket.show.name,  
+                "venue":ticket.seat.hall.hall_name ,
+                "date": ticket.getShowDate(),
+                "time": ticket.getShowTimimg()
+            }
+            serialized_tickets.append(serialized_ticket)
+        
+        return JsonResponse(serialized_tickets, safe=False)  
+
+    except PermissionError as e:
+        return JsonResponse({"error": str(e)}, status=403)
