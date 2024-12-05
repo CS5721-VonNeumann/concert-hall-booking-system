@@ -20,6 +20,8 @@ from django.urls import path, include
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from django_prometheus import exports
+
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -47,4 +49,5 @@ urlpatterns = [
     path('api/', include('users.urls')),
     path('recommendations/', include('recommendation_engine.urls')),
     path('swagger/', schema_view.with_ui('swagger',cache_timeout=0), name='schema-swagger-ui'),
+    path("metrics", exports.ExportToDjangoView),
 ]

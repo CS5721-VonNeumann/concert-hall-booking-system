@@ -18,6 +18,9 @@ django-celery-beat = "*"
 pytest = "*"
 pytest-django = "*"
 drf-yasg = "*"
+pip = "*"
+django-prometheus = "*"
+prometheus-client = "*"
 
 [dev-packages]
 
