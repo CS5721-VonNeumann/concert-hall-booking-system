@@ -79,7 +79,7 @@ class CancelShowRequestSerializer(serializers.Serializer):
         return data
 
 
-class ShowRequestSerializer(serializers.ModelSerializer):
+class ShowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Show
         fields = ['id', 'name', 'category', 'has_intermission', 'slot', 'hall', 'status']
