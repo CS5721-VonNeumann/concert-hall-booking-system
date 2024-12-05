@@ -85,8 +85,8 @@ def assign_category_to_hall(request: HttpRequest):
 
 @swagger_auto_schema(
     manual_parameters=[
-        get_query_param_schema("categoryId", required=False),
-        get_query_param_schema("slotId", required=False)
+        get_query_param_schema("category_id", required=False),
+        get_query_param_schema("slot_id", required=False)
     ],
     method='GET'
 )
