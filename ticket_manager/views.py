@@ -19,9 +19,8 @@ from .template import CustomerTicketView
 from .command import CancelTicketCommand, RefundCommand, LoyaltyDeductionCommand
 from users.middleware import get_current_user
 from users.models import Customer
-from .services import return_available_seats, create_ticket,TicketCommandControl,isTicketCancellationAllowed
+from .services import return_available_seats, create_ticket,TicketCommandControl
 from .models import Ticket
-from django.core.exceptions import ValidationError
 
 @swagger_auto_schema(
     request_body=BookTicketSerializer,
@@ -46,7 +45,7 @@ def bookTickets(request: HttpRequest):
         payment_gateway = PaymentGatewayFacade()
         price_per_ticket, bill_amount = payment_gateway.get_ticket_bill_amount(
             customer, seat_objs)
-
+        
         if bill_amount:
 
             if tickets := create_ticket(customer, validated_data['show_obj'], seat_objs, price_per_ticket):

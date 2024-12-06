@@ -27,7 +27,7 @@ class ShowRequestService:
                     slot=slot,
                     hall=hall,
                 )
-                show.attach(observer=show_producer, interest=0)
+                show.attach(observer=show_producer)
             else:
                 Show.objects.filter(id=show_id).update(
                     name=name, 

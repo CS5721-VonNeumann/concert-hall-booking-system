@@ -6,10 +6,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Show, ShowStatusEnum, ShowProducer
+from ticket_manager.models import Ticket
 from .showstatuses import PendingStatus
 from users.models import ShowProducer
 import json
-from .serializers import CreateShowRequestSerializer, UpdateScheduledShowRequestSerializer, CancelShowRequestSerializer, ShowSerializer
+from .serializers import CreateShowRequestSerializer, UpdateScheduledShowRequestSerializer, CancelShowRequestSerializer, CancelShowSerializer, ShowSerializer
 from .services import ShowRequestService
 from django.forms.models import model_to_dict
 from drf_yasg.utils import swagger_auto_schema
@@ -101,6 +102,32 @@ def cancel_show_request(request):
 
     show = validated_data['show']
     show.cancel()
+
+    return Response({"message": "Show canceled successfully."}, status=status.HTTP_200_OK)
+
+@swagger_auto_schema(
+    request_body=CancelShowSerializer,
+    method='PUT'
+)
+@api_view(["PUT"])
+@permission_classes([IsAuthenticated])
+def cancel_show(request):
+    admin_user = get_current_user().is_superuser
+
+    if not admin_user:
+        return JsonResponse({"error": "Permission denied"}, status=403)
+    
+    body = json.loads(request.body)
+    # Validate input with serializer
+    serializer = CancelShowSerializer(data=body, admin_user=admin_user)
+    serializer.is_valid(raise_exception=True)
+    validated_data = serializer.validated_data
+
+    show: Show = validated_data['show']
+
+    message = f"The Show: {show.name} has been cancelled. Sorry for the inconvenience"
+    show.cancel(message=message)
+    Ticket.cancelled_show(show=show, message=message)
 
     return Response({"message": "Show canceled successfully."}, status=status.HTTP_200_OK)
 

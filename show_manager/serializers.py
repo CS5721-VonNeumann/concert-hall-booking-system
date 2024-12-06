@@ -102,6 +102,30 @@ class CancelShowRequestSerializer(serializers.Serializer):
 
         return data
 
+class CancelShowSerializer(serializers.Serializer):
+    show_id = serializers.IntegerField()
+
+    def __init__(self, *args, **kwargs):
+        # Accept `admin` as a context parameter
+        self.admin_user = kwargs.pop('admin_user', None)
+        super().__init__(*args, **kwargs)
+
+
+    def validate(self, data):
+        # Validate show existence
+        show_id = data.get("show_id")
+        show = Show.objects.filter(id=show_id).first()
+        if not show:
+            raise serializers.ValidationError("Show with the given ID does not exist.")
+        data['show'] = show
+
+        if not isinstance(show.get_status_instance(), ScheduledStatus):
+            raise serializers.ValidationError("Show is not in scheduled status.")
+        
+        if not self.admin_user:
+            raise serializers.ValidationError("You do not have access to cancel this show")
+
+        return data
 
 class ShowSerializer(serializers.ModelSerializer):
     class Meta:

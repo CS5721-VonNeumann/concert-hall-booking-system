@@ -1,15 +1,25 @@
 from django.contrib.auth.models import User
 from django.db import models
 from shared.interfaces import Observer
-from notifications.models import ShowProducerNotifications
+from notifications.models import ShowProducerNotifications, CustomerNotifications
 
-class Customer(models.Model):
+class Customer(models.Model, Observer):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default="")
     phone = models.CharField(max_length=15, default="")
     loyalty_points = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name} (Customer)"
+    
+    def update(self, message):
+        """
+        This method is called by the Subject (Show) when its status changes.
+        """
+        CustomerNotifications.objects.create(
+            customer=self,
+            message=message,
+            isRead=False
+        )
 
 class ShowProducer(models.Model, Observer):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default="")
