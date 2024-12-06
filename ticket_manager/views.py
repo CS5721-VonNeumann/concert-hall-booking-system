@@ -16,11 +16,16 @@ from .models import Ticket
 from .serializers import BookTicketSerializer, TicketHistorySerializer,TicketCancellationSerializer
 from .services import return_available_seats, create_ticket
 from .template import CustomerTicketView
-from .command import CancelTicketCommand, RefundCommand, LoyaltyDeductionCommand
+from .command import CancelTicketCommand, RefundCommand
 from users.middleware import get_current_user
 from users.models import Customer
 from .services import return_available_seats, create_ticket,TicketCommandControl
 from .models import Ticket
+from .serializers import BookTicketSerializer, TicketHistorySerializer
+from .serializers import BookTicketSerializer, TicketSalesRequestSerializer,TicketSerializer
+from .services import return_available_seats, create_ticket
+from .ticketsalestrategy import AdminTicketSalesStrategy,ShowProducerTicketSalesStrategy,TicketSalesContext
+
 
 @swagger_auto_schema(
     request_body=BookTicketSerializer,
@@ -107,6 +112,7 @@ def customer_view_tickets(request):
 
     except PermissionError as e:
         return JsonResponse({"error": str(e)}, status=403)
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def cancel_ticket(request):
@@ -122,20 +128,18 @@ def cancel_ticket(request):
             # Create the command objects
             cancelCommand = CancelTicketCommand(ticket_ids=tickets, customer=customer)
             refundCommand = RefundCommand(ticket_ids=tickets, customer=customer)
-            loyalty_deduction_command = LoyaltyDeductionCommand(ticket_ids=tickets, customer=customer)
 
             # Execute the service
             service = TicketCommandControl(
                 cancel_command=cancelCommand,
-                refund_command=refundCommand,
-                loyalty_deduction_command=loyalty_deduction_command,
+                refund_command=refundCommand
             )
             canceled_tickets = service.execute()
             # Return a success response
             return Response({
                 "status": "success",
                 "tickets": [ticket.id for ticket in canceled_tickets[0]],
-                "message": f"Successfully canceled {len(canceled_tickets[0])} ticket(s)."
+                "message": f"Successfully canceled {len(canceled_tickets[0])} ticket(s).{canceled_tickets[1]}"
             }, status=200)
 
         except Exception as e:
@@ -146,3 +150,32 @@ def cancel_ticket(request):
 
     # If validation fails
     return Response({"status": "error", "errors": serializer.errors}, status=400)
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def view_ticket_sales(request):
+    user = get_current_user()
+    serializer = TicketSalesRequestSerializer(data=request.data)
+    if not serializer.is_valid():
+        return JsonResponse({"error": serializer.errors}, status=400)
+    
+    data = serializer.validated_data
+    show_name = data["show_name"]
+    slot_id = data.get("slot_id", None)
+
+    try:
+        if user.is_superuser:
+            strategy = AdminTicketSalesStrategy()
+        elif hasattr(user, 'showproducer'):
+            strategy = ShowProducerTicketSalesStrategy()
+        else:
+            return JsonResponse({"error": "Unauthorized access"}, status=403)
+
+        context = TicketSalesContext(strategy)
+        ticket_sales = context.fetch_sales(show_name, slot_id)
+        serialized_sales = TicketSerializer(ticket_sales, many=True).data
+
+        return JsonResponse(serialized_sales, safe=False)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
