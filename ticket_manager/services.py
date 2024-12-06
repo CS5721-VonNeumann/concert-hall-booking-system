@@ -47,16 +47,14 @@ def create_ticket(customer:Customer, show_obj, seat_objs, price_per_ticket):
         return False
 
 class TicketCommandControl:
-    def __init__(self, cancel_command, refund_command, loyalty_deduction_command):
+    def __init__(self, cancel_command, refund_command):
         self.cancel_command = cancel_command
         self.refund_command = refund_command
-        self.loyalty_deduction_command = loyalty_deduction_command
         
     def execute(self):
         cancel_message = self.cancel_command.execute()
         refund_message = self.refund_command.execute()
-        loyalty_message = self.loyalty_deduction_command.execute()
-        return cancel_message, refund_message, loyalty_message
+        return cancel_message, refund_message
 
 
 def isTicketCancellationAllowed(ticket_id,customer):
