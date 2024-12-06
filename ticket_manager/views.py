@@ -22,6 +22,11 @@ from users.models import Customer
 from .services import return_available_seats, create_ticket,TicketCommandControl,isTicketCancellationAllowed
 from .models import Ticket
 from django.core.exceptions import ValidationError
+from .serializers import BookTicketSerializer, TicketHistorySerializer
+from .serializers import BookTicketSerializer, TicketSalesRequestSerializer,TicketSerializer
+from .services import return_available_seats, create_ticket
+from .ticketsalestrategy import AdminTicketSalesStrategy,ShowProducerTicketSalesStrategy,TicketSalesContext
+
 
 @swagger_auto_schema(
     request_body=BookTicketSerializer,
@@ -108,6 +113,7 @@ def customer_view_tickets(request):
 
     except PermissionError as e:
         return JsonResponse({"error": str(e)}, status=403)
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def cancel_ticket(request):
@@ -147,3 +153,32 @@ def cancel_ticket(request):
 
     # If validation fails
     return Response({"status": "error", "errors": serializer.errors}, status=400)
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def view_ticket_sales(request):
+    user = get_current_user()
+    serializer = TicketSalesRequestSerializer(data=request.data)
+    if not serializer.is_valid():
+        return JsonResponse({"error": serializer.errors}, status=400)
+    
+    data = serializer.validated_data
+    show_name = data["show_name"]
+    slot_id = data.get("slot_id", None)
+
+    try:
+        if user.is_superuser:
+            strategy = AdminTicketSalesStrategy()
+        elif hasattr(user, 'showproducer'):
+            strategy = ShowProducerTicketSalesStrategy()
+        else:
+            return JsonResponse({"error": "Unauthorized access"}, status=403)
+
+        context = TicketSalesContext(strategy)
+        ticket_sales = context.fetch_sales(show_name, slot_id)
+        serialized_sales = TicketSerializer(ticket_sales, many=True).data
+
+        return JsonResponse(serialized_sales, safe=False)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
