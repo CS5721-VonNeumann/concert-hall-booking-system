@@ -130,6 +130,14 @@
             "markers": "python_version >= '3.6' and python_version < '4'",
             "version": "==0.11.2"
         },
+        "django-prometheus": {
+            "hashes": [
+                "sha256:cf9b26f7ba2e4568f08f8f91480a2882023f5908579681bcf06a4d2465f12168",
+                "sha256:f9c8b6c780c9419ea01043c63a437d79db2c33353451347894408184ad9c3e1e"
+            ],
+            "index": "pypi",
+            "version": "==2.3.1"
+        },
         "django-timezone-field": {
             "hashes": [
                 "sha256:3232e7ecde66ba4464abb6f9e6b8cc739b914efb9b29dc2cf2eee451f7cc2acb",
@@ -233,6 +241,7 @@
                 "sha256:252505a722ac04b0456be05c05f75f45d760c2911ffc45f2a06bcaed9f3ae3fb",
                 "sha256:594b45c410d6f4f8888940fe80b5cc2521b305a1fafe1c58609ef715a001f301"
             ],
+            "index": "pypi",
             "markers": "python_version >= '3.8'",
             "version": "==0.21.1"
         },

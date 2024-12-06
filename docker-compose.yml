@@ -41,6 +41,8 @@ services:
    - .:/app
   ports:
    - '8000:8000'
+  networks:
+   - default
   depends_on:
    - db
 
@@ -110,6 +112,23 @@ services:
    - sonar_db:/var/lib/postgresql
    - sonar_db_data:/var/lib/postgresql/data
 
+ prometheus:
+  image: prom/prometheus:v2.14.0
+  volumes:
+   - ./prometheus.yml:/etc/prometheus/prometheus.yml
+   - prometheus-data:/prometheus
+  ports:
+   - "9090:9090"
+  networks:
+   - default
+
+ grafana:
+  image: grafana/grafana:6.5.2
+  ports:
+    - "3000:3000"
+  volumes:
+    - grafana-storage:/var/lib/grafana
+
 volumes:
  data:
  sonarqube_conf:
@@ -119,3 +138,5 @@ volumes:
  sonarqube_temp:
  sonar_db:
  sonar_db_data:
+ prometheus-data: 
+ grafana-storage:
