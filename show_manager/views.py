@@ -7,7 +7,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Show, ShowStatusEnum, ShowProducer
 from ticket_manager.models import Ticket
-from .showstatuses import PendingStatus
 from users.models import ShowProducer
 import json
 from .serializers import CreateShowRequestSerializer, UpdateScheduledShowRequestSerializer, CancelShowRequestSerializer, CancelShowSerializer, ShowSerializer
@@ -153,6 +152,76 @@ def list_show_requests(request):
     paginator = Paginator(shows, limit)
     page_obj = paginator.get_page(page)
 
+    serializer = ShowSerializer(page_obj, many=True)
+    return Response({
+        "results": serializer.data,
+        "total": paginator.count,
+        "pages": paginator.num_pages,
+        "current_page": page_obj.number,
+    })
+
+@swagger_auto_schema(
+    manual_parameters=[
+        get_query_param_schema("page", required=False),
+        get_query_param_schema("limit", required=False)
+    ],
+    method='GET'
+)
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_scheduled_shows(request):
+    """
+    Fetch and return all scheduled shows for customwers
+    """
+    user = get_current_user()
+    isCustomer = hasattr(user, 'customer')
+
+    if isCustomer:
+        shows = Show.objects.filter(status=ShowStatusEnum.SCHEDULED.name)
+    else:
+        return JsonResponse({"error": "Permission denied"}, status=403)
+
+    page = request.query_params.get("page", 1)
+    limit = request.query_params.get("limit", 10)
+
+    paginator = Paginator(shows, limit)
+    page_obj = paginator.get_page(page)
+    
+    serializer = ShowSerializer(page_obj, many=True)
+    return Response({
+        "results": serializer.data,
+        "total": paginator.count,
+        "pages": paginator.num_pages,
+        "current_page": page_obj.number,
+    })
+
+@swagger_auto_schema(
+    manual_parameters=[
+        get_query_param_schema("page", required=False),
+        get_query_param_schema("limit", required=False)
+    ],
+    method='GET'
+)
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_all_shows(request):
+    """
+    Fetch and return all shows
+    """
+    user = get_current_user()
+    isAdmin = user.is_superuser
+
+    if isAdmin:
+        shows = Show.objects.all()
+    else:
+        return JsonResponse({"error": "Permission denied"}, status=403)
+
+    page = request.query_params.get("page", 1)
+    limit = request.query_params.get("limit", 10)
+
+    paginator = Paginator(shows, limit)
+    page_obj = paginator.get_page(page)
+    
     serializer = ShowSerializer(page_obj, many=True)
     return Response({
         "results": serializer.data,
