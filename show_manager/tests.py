@@ -121,7 +121,7 @@ def test_cancel_show_request(setup_data):
         "show_id": show_obj.id,
     }
     
-    response = response = client.delete('/shows/cancel-request', request_data, format="json")
+    response = response = client.put('/shows/cancel-request', request_data, format="json")
 
     assert response.status_code == 400
     error_messages = json.loads(response.content.decode())['non_field_errors']
@@ -130,7 +130,7 @@ def test_cancel_show_request(setup_data):
     show_obj.status = ShowStatusEnum.PENDING.name
     show_obj.save()
 
-    response = response = client.delete('/shows/cancel-request', request_data, format="json")
+    response = response = client.put('/shows/cancel-request', request_data, format="json")
 
     assert response.status_code == 200
     show = Show.objects.filter(id=show_obj.id).first()
