@@ -32,7 +32,7 @@ def test_worker_rejects_invalid_request(setup_data, mocker):
     ApprovalEngine(show=show).handle_show_request()
     show.refresh_from_db()
     assert show.status == ShowStatusEnum.REJECTED.name
-    mock_notify.assert_called_with(interest=0, message="Validation failed: The hall does not support this show category.")
+    mock_notify.assert_called_with(message="Validation failed: The hall does not support this show category.")
 
     show.status = ShowStatusEnum.PENDING.name
     show.category = category
@@ -41,7 +41,7 @@ def test_worker_rejects_invalid_request(setup_data, mocker):
     ApprovalEngine(show=show).handle_show_request()
     show.refresh_from_db()
     assert show.status == ShowStatusEnum.REJECTED.name
-    mock_notify.assert_called_with(interest=0, message="Validation failed: The hall does not support this show slot.")
+    mock_notify.assert_called_with(message="Validation failed: The hall does not support this show slot.")
 
     show2 = Show.objects.create(
         name="Overlapping Show",
@@ -60,7 +60,7 @@ def test_worker_rejects_invalid_request(setup_data, mocker):
     ApprovalEngine(show=show).handle_show_request()
     show.refresh_from_db()
     assert show.status == ShowStatusEnum.REJECTED.name
-    mock_notify.assert_called_with(interest=0, message="Another show is already scheduled in the same hall and slot.")
+    mock_notify.assert_called_with(message="Another show is already scheduled in the same hall and slot.")
 
 
 
@@ -86,4 +86,4 @@ def test_worker_approves_valid_request_and_notify(setup_data, mocker):
     ApprovalEngine(show=show).handle_show_request()
     show.refresh_from_db()
     assert show.status == ShowStatusEnum.SCHEDULED.name
-    mock_notify.assert_called_with(interest=0)
+    mock_notify.assert_called_with()
