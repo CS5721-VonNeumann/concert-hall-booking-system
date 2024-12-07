@@ -13,7 +13,7 @@ class BillService:
             discount_percentage = customer_membership_instance.get_ticket_discount_percentage()
             discounted_prices = {k: v * (1 - discount_percentage / 100) for k, v in prices.items()}
             return discounted_prices, sum(discounted_prices.values())
-        except Exception as exc:
+        except Exception:
             return False, False
 
     def get_membership_bill_amount(self, membership_price):
@@ -35,7 +35,7 @@ class RefundService:
             refund_amount = total_amount * (refund_percentage / 100)
 
             return refund_amount
-        except Exception as exc:
+        except Exception:
             return False
 
     def get_show_refund():

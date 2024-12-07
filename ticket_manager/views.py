@@ -6,24 +6,19 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND
+
 from config.utils import get_query_param_schema
 from payment_gateway.facade import PaymentGatewayFacade
 from users.middleware import get_current_user
+
 from users.models import Customer
 from membership.models import CustomerMembership
-from .serializers import BookTicketSerializer
 from .models import Ticket
-from .serializers import BookTicketSerializer, TicketHistorySerializer,TicketCancellationSerializer
-from .services import return_available_seats, create_ticket
+
 from .template import CustomerTicketView
 from .command import CancelTicketCommand, RefundCommand
-from users.middleware import get_current_user
-from users.models import Customer
-from .services import return_available_seats, create_ticket,TicketCommandControl
-from .models import Ticket
-from .serializers import BookTicketSerializer, TicketHistorySerializer
-from .serializers import BookTicketSerializer, TicketSalesRequestSerializer,TicketSerializer
-from .services import return_available_seats, create_ticket
+from .services import return_available_seats, create_ticket, TicketCommandControl
+from .serializers import BookTicketSerializer, TicketSalesRequestSerializer,TicketSerializer, TicketHistorySerializer, TicketCancellationSerializer
 from .ticketsalestrategy import AdminTicketSalesStrategy,ShowProducerTicketSalesStrategy,TicketSalesContext
 
 
@@ -33,7 +28,7 @@ from .ticketsalestrategy import AdminTicketSalesStrategy,ShowProducerTicketSales
 )
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def bookTickets(request: HttpRequest):
+def book_tickets(request: HttpRequest):
     customer = Customer.objects.get(user=get_current_user())
     customer_membership = CustomerMembership.objects.filter(customer=customer).first()
     latest_valid_membership = customer_membership.get_latest_valid_membership_instance(customer=customer)
@@ -126,13 +121,13 @@ def cancel_ticket(request):
         tickets = serializer.context["validated_tickets"]
         try:
             # Create the command objects
-            cancelCommand = CancelTicketCommand(ticket_ids=tickets, customer=customer)
-            refundCommand = RefundCommand(ticket_ids=tickets, customer=customer)
+            cancel_command = CancelTicketCommand(ticket_ids=tickets, customer=customer)
+            refund_command = RefundCommand(ticket_ids=tickets, customer=customer)
 
             # Execute the service
             service = TicketCommandControl(
-                cancel_command=cancelCommand,
-                refund_command=refundCommand
+                cancel_command=cancel_command,
+                refund_command=refund_command
             )
             canceled_tickets = service.execute()
             # Return a success response

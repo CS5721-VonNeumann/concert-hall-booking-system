@@ -22,7 +22,7 @@ from users.models import Customer
 )
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def purchaseMembership(request: HttpRequest):
+def purchase_membership(request: HttpRequest):
     data = json.loads(request.body)
     serializer = PurchaseMembershipSerializer(data=data)
     serializer.is_valid(raise_exception=True)

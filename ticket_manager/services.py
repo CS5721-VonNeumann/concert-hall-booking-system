@@ -57,7 +57,7 @@ class TicketCommandControl:
         return cancel_message, refund_message
 
 
-def isTicketCancellationAllowed(ticket_id,customer):
+def is_ticket_cancellation_allowed(ticket_id,customer):
     current_membership = CustomerMembership.get_latest_valid_membership_instance(customer)
     cancel_time = current_membership.get_cancellation_time_policy()
     ticket = Ticket.objects.get(id=ticket_id)
@@ -67,6 +67,3 @@ def isTicketCancellationAllowed(ticket_id,customer):
     allow_time = show_datetime - timedelta(hours=cancel_time)
     time = datetime.now() < allow_time
     return time
-  
-    
- 

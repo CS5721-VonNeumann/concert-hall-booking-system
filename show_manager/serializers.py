@@ -1,7 +1,15 @@
 from rest_framework import serializers
+
 from .models import Show, Slot, Hall, Category
 from .showstatuses import ScheduledStatus, PendingStatus
 
+from .constants import (
+    SHOW_NOT_FOUND_ERROR,
+    INVALID_SCHEDULED_STATUS_ERROR,
+    INVALID_PENDING_STATUS_ERROR,
+    NO_ACCESS_TO_UPDATE_ERROR,
+    NO_ACCESS_TO_CANCEL_ERROR,
+)
 
 class CreateShowRequestSerializer(serializers.Serializer):
     show_id = serializers.IntegerField(required=False)
@@ -44,9 +52,9 @@ class CreateShowRequestSerializer(serializers.Serializer):
                 raise serializers.ValidationError("Invalid show ID.")
             show = Show.objects.filter(id=show_id).first()
             if not isinstance(show.get_status_instance(), PendingStatus):
-                raise serializers.ValidationError("Show is not in pending status.")
+                raise serializers.ValidationError(INVALID_PENDING_STATUS_ERROR)
             if show.show_producer != self.show_producer:
-                raise serializers.ValidationError("You do not have access to update this show")
+                raise serializers.ValidationError(NO_ACCESS_TO_UPDATE_ERROR)
 
         return data
 
@@ -66,14 +74,14 @@ class UpdateScheduledShowRequestSerializer(serializers.Serializer):
         show_id = data.get("show_id")
         show = Show.objects.filter(id=show_id).first()
         if not show:
-            raise serializers.ValidationError("Show with the given ID does not exist.")
+            raise serializers.ValidationError(SHOW_NOT_FOUND_ERROR)
         data['show'] = show
 
         if not isinstance(show.get_status_instance(), ScheduledStatus):
-            raise serializers.ValidationError("Show is not in scheduled status.")
+            raise serializers.ValidationError(INVALID_SCHEDULED_STATUS_ERROR)
         
         if show.show_producer != self.show_producer:
-            raise serializers.ValidationError("You do not have access to update this show")
+            raise serializers.ValidationError(NO_ACCESS_TO_UPDATE_ERROR)
 
         return data
 
@@ -91,14 +99,14 @@ class CancelShowRequestSerializer(serializers.Serializer):
         show_id = data.get("show_id")
         show = Show.objects.filter(id=show_id).first()
         if not show:
-            raise serializers.ValidationError("Show with the given ID does not exist.")
+            raise serializers.ValidationError(SHOW_NOT_FOUND_ERROR)
         data['show'] = show
 
         if not isinstance(show.get_status_instance(), PendingStatus):
-            raise serializers.ValidationError("Show is not in pending status.")
+            raise serializers.ValidationError(INVALID_PENDING_STATUS_ERROR)
         
         if show.show_producer != self.show_producer:
-            raise serializers.ValidationError("You do not have access to cancel this show")
+            raise serializers.ValidationError(NO_ACCESS_TO_CANCEL_ERROR)
 
         return data
 
@@ -116,14 +124,14 @@ class CancelShowSerializer(serializers.Serializer):
         show_id = data.get("show_id")
         show = Show.objects.filter(id=show_id).first()
         if not show:
-            raise serializers.ValidationError("Show with the given ID does not exist.")
+            raise serializers.ValidationError(SHOW_NOT_FOUND_ERROR)
         data['show'] = show
 
         if not isinstance(show.get_status_instance(), ScheduledStatus):
-            raise serializers.ValidationError("Show is not in scheduled status.")
+            raise serializers.ValidationError(INVALID_SCHEDULED_STATUS_ERROR)
         
         if not self.admin_user:
-            raise serializers.ValidationError("You do not have access to cancel this show")
+            raise serializers.ValidationError(NO_ACCESS_TO_CANCEL_ERROR)
 
         return data
 
