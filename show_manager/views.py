@@ -6,10 +6,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Show, ShowStatusEnum, ShowProducer
-from .showstatuses import PendingStatus
+from ticket_manager.models import Ticket
 from users.models import ShowProducer
 import json
-from .serializers import CreateShowRequestSerializer, UpdateScheduledShowRequestSerializer, CancelShowRequestSerializer, ShowSerializer
+from .serializers import CreateShowRequestSerializer, UpdateScheduledShowRequestSerializer, CancelShowRequestSerializer, CancelShowSerializer, ShowSerializer
 from .services import ShowRequestService
 from django.forms.models import model_to_dict
 from drf_yasg.utils import swagger_auto_schema
@@ -105,6 +105,32 @@ def cancel_show_request(request):
     return Response({"message": "Show canceled successfully."}, status=status.HTTP_200_OK)
 
 @swagger_auto_schema(
+    request_body=CancelShowSerializer,
+    method='PUT'
+)
+@api_view(["PUT"])
+@permission_classes([IsAuthenticated])
+def cancel_show(request):
+    admin_user = get_current_user().is_superuser
+
+    if not admin_user:
+        return JsonResponse({"error": "Permission denied"}, status=403)
+    
+    body = json.loads(request.body)
+    # Validate input with serializer
+    serializer = CancelShowSerializer(data=body, admin_user=admin_user)
+    serializer.is_valid(raise_exception=True)
+    validated_data = serializer.validated_data
+
+    show: Show = validated_data['show']
+
+    message = f"The Show: {show.name} has been cancelled. Sorry for the inconvenience"
+    show.cancel(message=message)
+    Ticket.cancelled_show(show=show, message=message)
+
+    return Response({"message": "Show canceled successfully."}, status=status.HTTP_200_OK)
+
+@swagger_auto_schema(
     manual_parameters=[
         get_query_param_schema("page", required=False),
         get_query_param_schema("limit", required=False)
@@ -126,6 +152,76 @@ def list_show_requests(request):
     paginator = Paginator(shows, limit)
     page_obj = paginator.get_page(page)
 
+    serializer = ShowSerializer(page_obj, many=True)
+    return Response({
+        "results": serializer.data,
+        "total": paginator.count,
+        "pages": paginator.num_pages,
+        "current_page": page_obj.number,
+    })
+
+@swagger_auto_schema(
+    manual_parameters=[
+        get_query_param_schema("page", required=False),
+        get_query_param_schema("limit", required=False)
+    ],
+    method='GET'
+)
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_scheduled_shows(request):
+    """
+    Fetch and return all scheduled shows for customwers
+    """
+    user = get_current_user()
+    isCustomer = hasattr(user, 'customer')
+
+    if isCustomer:
+        shows = Show.objects.filter(status=ShowStatusEnum.SCHEDULED.name)
+    else:
+        return JsonResponse({"error": "Permission denied"}, status=403)
+
+    page = request.query_params.get("page", 1)
+    limit = request.query_params.get("limit", 10)
+
+    paginator = Paginator(shows, limit)
+    page_obj = paginator.get_page(page)
+    
+    serializer = ShowSerializer(page_obj, many=True)
+    return Response({
+        "results": serializer.data,
+        "total": paginator.count,
+        "pages": paginator.num_pages,
+        "current_page": page_obj.number,
+    })
+
+@swagger_auto_schema(
+    manual_parameters=[
+        get_query_param_schema("page", required=False),
+        get_query_param_schema("limit", required=False)
+    ],
+    method='GET'
+)
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_all_shows(request):
+    """
+    Fetch and return all shows
+    """
+    user = get_current_user()
+    isAdmin = user.is_superuser
+
+    if isAdmin:
+        shows = Show.objects.all()
+    else:
+        return JsonResponse({"error": "Permission denied"}, status=403)
+
+    page = request.query_params.get("page", 1)
+    limit = request.query_params.get("limit", 10)
+
+    paginator = Paginator(shows, limit)
+    page_obj = paginator.get_page(page)
+    
     serializer = ShowSerializer(page_obj, many=True)
     return Response({
         "results": serializer.data,

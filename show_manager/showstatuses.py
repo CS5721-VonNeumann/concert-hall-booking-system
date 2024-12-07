@@ -55,6 +55,12 @@ class ScheduledStatus(ShowStatus):
         self.show.status = ShowStatusEnum.COMPLETED.name
         self.show.save()
         print(f"Show status changed from {ShowStatusEnum.SCHEDULED.name} to {ShowStatusEnum.COMPLETED.name}")
+    
+    def transition_to_cancelled(self):
+        """Transition the status from 'Scheduled' to 'Cancelled'."""
+        self.show.status = ShowStatusEnum.CANCELLED.name
+        self.show.save()
+        print(f"Show status changed from {ShowStatusEnum.SCHEDULED.name} to {ShowStatusEnum.CANCELLED.name}")
 
 class CompletedStatus(ShowStatus):
    def get_status(self):

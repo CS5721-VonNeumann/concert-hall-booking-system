@@ -5,7 +5,7 @@ class Subject():
     def __init__(self):
         self._observers = []
 
-    def attach(self, observer, interest):
+    def attach(self, observer):
         if observer not in self._observers:
             self._observers.append(observer)
 
@@ -13,7 +13,7 @@ class Subject():
         if observer in self._observers:
             self._observers.remove(observer)
 
-    def notify(self, interest, message):
+    def notify(self, message):
         raise NotImplementedError("Subclasses should implement this method")
 
 
