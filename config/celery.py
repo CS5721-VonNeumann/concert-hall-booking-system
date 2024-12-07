@@ -45,8 +45,6 @@ class DeclareDLXnDLQ(bootsteps.StartStopStep):
     requires = {'celery.worker.components:Pool'}
 
     def start(self, worker):
-        app = worker.app
-
         # Declare DLX and DLQ
         dlx = Exchange(deadletter_exchange_name, type='direct')
 
@@ -55,7 +53,6 @@ class DeclareDLXnDLQ(bootsteps.StartStopStep):
 
         with worker.app.pool.acquire() as conn:
             dead_letter_queue.bind(conn).declare()
-
 
 
 default_exchange = Exchange(default_exchange_name, type='direct')

@@ -3,6 +3,10 @@ from users.models import ShowProducer
 from hall_manager.models import Hall, Slot, Category
 from .showstatuses import ShowStatus, PendingStatus, ScheduledStatus, CompletedStatus, RejectedStatus, CancelledStatus, ShowStatusEnum
 from shared.interfaces import Subject
+from .constants import (
+    INVALID_SCHEDULED_STATUS_ERROR,
+    INVALID_PENDING_STATUS_ERROR,
+)
 
 # keep enums in a single file together enums.py
 STATUS_CLASSES = {
@@ -12,6 +16,7 @@ STATUS_CLASSES = {
     ShowStatusEnum.REJECTED.name: RejectedStatus,
     ShowStatusEnum.CANCELLED.name: CancelledStatus
 }
+
 class Show(models.Model, Subject):
     name = models.CharField(max_length=50)
     has_intermission = models.BooleanField()
@@ -43,14 +48,14 @@ class Show(models.Model, Subject):
     def schedule(self):
         status_instance: ShowStatus = self.get_status_instance()
         if(status_instance and not isinstance(status_instance, PendingStatus)):
-            raise Exception("Show is not in pending status")
+            raise ValueError(INVALID_PENDING_STATUS_ERROR)
         status_instance.transition_to_scheduled()
         self.notify()
 
     def reject(self, message):
         status_instance: ShowStatus = self.get_status_instance()
         if(not isinstance(status_instance, PendingStatus)):
-            raise Exception("Show is not in pending status")
+            raise ValueError(INVALID_PENDING_STATUS_ERROR)
         status_instance.transition_to_rejected()
         self.notify(message=message)
     
@@ -67,7 +72,7 @@ class Show(models.Model, Subject):
     def complete(self):
         status_instance: ShowStatus = self.get_status_instance()
         if(not isinstance(status_instance, ScheduledStatus)):
-            raise Exception("Show is not in scheduled status")
+            raise ValueError(INVALID_SCHEDULED_STATUS_ERROR)
         status_instance.transition_to_completed()
 
     @staticmethod
@@ -78,5 +83,3 @@ class Show(models.Model, Subject):
             status=ShowStatusEnum.SCHEDULED.name
         ).exists()
         return overlapping_shows
-
-    

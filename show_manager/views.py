@@ -1,19 +1,22 @@
+import json
 from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpRequest
+from django.forms.models import model_to_dict
 from rest_framework.decorators import api_view, permission_classes
 from users.middleware import get_current_user
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Show, ShowStatusEnum, ShowProducer
-from ticket_manager.models import Ticket
-from users.models import ShowProducer
-import json
-from .serializers import CreateShowRequestSerializer, UpdateScheduledShowRequestSerializer, CancelShowRequestSerializer, CancelShowSerializer, ShowSerializer
-from .services import ShowRequestService
-from django.forms.models import model_to_dict
 from drf_yasg.utils import swagger_auto_schema
 from config.utils import get_query_param_schema
+
+from .models import Show, ShowStatusEnum, ShowProducer
+from users.models import ShowProducer
+from ticket_manager.models import Ticket
+from .serializers import CreateShowRequestSerializer, UpdateScheduledShowRequestSerializer, CancelShowRequestSerializer, CancelShowSerializer, ShowSerializer
+from .services import ShowRequestService
+
+from .constants import PERMISSION_DENIED_ERROR
 
 @swagger_auto_schema(
     request_body=CreateShowRequestSerializer,
@@ -114,7 +117,7 @@ def cancel_show(request):
     admin_user = get_current_user().is_superuser
 
     if not admin_user:
-        return JsonResponse({"error": "Permission denied"}, status=403)
+        return JsonResponse({"error": PERMISSION_DENIED_ERROR}, status=403)
     
     body = json.loads(request.body)
     # Validate input with serializer
@@ -174,12 +177,12 @@ def get_scheduled_shows(request):
     Fetch and return all scheduled shows for customwers
     """
     user = get_current_user()
-    isCustomer = hasattr(user, 'customer')
+    is_customer = hasattr(user, 'customer')
 
-    if isCustomer:
+    if is_customer:
         shows = Show.objects.filter(status=ShowStatusEnum.SCHEDULED.name)
     else:
-        return JsonResponse({"error": "Permission denied"}, status=403)
+        return JsonResponse({"error": PERMISSION_DENIED_ERROR}, status=403)
 
     page = request.query_params.get("page", 1)
     limit = request.query_params.get("limit", 10)
@@ -209,9 +212,9 @@ def get_all_shows(request):
     Fetch and return all shows
     """
     user = get_current_user()
-    isAdmin = user.is_superuser
+    is_admin = user.is_superuser
 
-    if isAdmin:
+    if is_admin:
         shows = Show.objects.all()
     else:
         return JsonResponse({"error": "Permission denied"}, status=403)

@@ -4,13 +4,10 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import permission_classes
 
-from .middleware import get_current_user
-from .models import Customer, ShowProducer
 from membership.serializers import CustomerMembershipSerializer
 from .serializer import CustomerUserSerializer, ShowProducerSerializer
 
@@ -35,7 +32,7 @@ def register_customer(request):
             customer_membership_serializer = CustomerMembershipSerializer(data=customer_membership_data)
 
             if customer_membership_serializer.is_valid():
-                membership = customer_membership_serializer.save()
+                customer_membership_serializer.save()
             else:
                 return Response(
                     customer_membership_serializer.errors,
@@ -61,7 +58,7 @@ def register_showproducer(request):
     if serializer.is_valid():
         try:
             show_producer = serializer.save()
-        except Exception as e:
+        except Exception:
             return Response({"error": "An unexpected error occurred while registering the show producer."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         # Create a token for the user associated with this show producer
@@ -131,44 +128,3 @@ def admin_login(request):
        "message": "Admin logged in",
        "token": token.key
     }, status=status.HTTP_200_OK)
-
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def protected_view(request):
-    #Using middleware to see the current user and type
-    user = get_current_user()
-    if user.is_superuser:
-        user_type ="Admin"
-        user_data = {
-            "username": user.username,
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name
-        }
-    elif hasattr(user, 'customer'):
-        user_type = "Customer"
-        currentuser = Customer.objects.get(user=user)
-        user_data = {
-                "username": currentuser.user.username,
-                "email": currentuser.user.email,
-                "first_name": currentuser.user.first_name,
-                "last_name": currentuser.user.last_name,
-                "phone": currentuser.phone,
-                "loyalty_points": currentuser.loyalty_points
-            }
-    elif hasattr(user, 'showproducer'):
-        user_type = "Show Producer"
-        currentuser = ShowProducer.objects.get(user=user)
-        user_data = {
-            "username": currentuser.user.username,
-            "email": currentuser.user.email,
-            "first_name": currentuser.user.first_name,
-            "last_name": currentuser.user.last_name,
-            "phone": currentuser.phone
-        }
-    else:
-        return Response({"error": "User not found"}, status=400)
-
-    return Response({
-        "message": f"This is a protected API view. You are authenticated as a {user_type}."
-    })
