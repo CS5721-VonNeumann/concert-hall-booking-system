@@ -43,6 +43,12 @@ pipeline {
             }
         }
         
+        stage('Test Coverage Report') {
+            steps {
+                sh '/Users/adarshajit/.local/share/virtualenvs/concert-hall-booking-system-fdD0L9Df/bin/pytest --cov=. --cov-report=xml'
+            }
+        }
+        
         stage('Code Quality') {
             steps {
                 sh '/opt/homebrew/bin/sonar-scanner -Dproject.settings=/Users/adarshajit/Documents/concert-hall-booking-system/sonar-scanner.properties'
