@@ -38,7 +38,7 @@ pipeline {
         }
         stage('test') {
             steps {
-                sh '/Users/adarshajit/.local/share/virtualenvs/concert-hall-booking-system-fdD0L9Df/bin/python manage.py test'
+                sh '/Users/adarshajit/.local/share/virtualenvs/concert-hall-booking-system-fdD0L9Df/bin/pytest -v'
             }
         }
     }
