@@ -47,7 +47,7 @@ def get_recommendations(request):
 
         # Call the recommend method of the strategy
         if isinstance(current_strategy, LocationBasedRecommendation):
-            recommended_shows = current_strategy.recommend(location)
+            recommended_shows = current_strategy.recommend(location=location)
         elif isinstance(current_strategy, TrendingRecommendation):
             recommended_shows = current_strategy.recommend()
         else:
