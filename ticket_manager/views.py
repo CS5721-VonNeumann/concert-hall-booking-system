@@ -6,18 +6,15 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND
-
 from config.utils import get_query_param_schema
 from payment_gateway.facade import PaymentGatewayFacade
 from users.middleware import get_current_user
-
 from users.models import Customer
 from membership.models import CustomerMembership
 from .models import Ticket
-
 from .template import CustomerTicketView
-from .command import CancelTicketCommand, RefundCommand
-from .services import return_available_seats, create_ticket, TicketCommandControl
+from .command import CancelTicketCommand, RefundCommand, CommandInvoker
+from .services import return_available_seats, create_ticket
 from .serializers import BookTicketSerializer, TicketSalesRequestSerializer,TicketSerializer, TicketHistorySerializer, TicketCancellationSerializer
 from .ticketsalestrategy import AdminTicketSalesStrategy,ShowProducerTicketSalesStrategy,TicketSalesContext
 from config.logger import logger
@@ -126,11 +123,11 @@ def cancel_ticket(request):
             refund_command = RefundCommand(ticket_ids=tickets, customer=customer)
 
             # Execute the service
-            service = TicketCommandControl(
+            service = CommandInvoker(
                 cancel_command=cancel_command,
                 refund_command=refund_command
             )
-            canceled_tickets = service.execute()
+            canceled_tickets = service.commandExecute()
             logger.info(f"Tickets {tickets} Cancelled by {customer.user.email}")
 
             # Return a success response

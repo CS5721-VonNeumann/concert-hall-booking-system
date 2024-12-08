@@ -23,3 +23,7 @@ class Observer():
     """
     def update(self, message):
         raise NotImplementedError("Subclasses should implement this method")
+
+class Command():
+    def execute(self):
+        pass
