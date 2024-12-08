@@ -9,7 +9,12 @@ from rest_framework.decorators import permission_classes
 from membership.serializers import CustomerMembershipSerializer
 from .serializer import CustomerUserSerializer, ShowProducerSerializer,LoginSerializer
 from config.logger import logger
+from drf_yasg.utils import swagger_auto_schema
 
+@swagger_auto_schema(
+    request_body=CustomerUserSerializer,
+    method='POST'
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_customer(request):
@@ -47,6 +52,10 @@ def register_customer(request):
     logger.error(customer_serializer.errors)
     return Response(customer_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@swagger_auto_schema(
+    request_body=ShowProducerSerializer,
+    method='POST'
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_showproducer(request):
@@ -67,6 +76,10 @@ def register_showproducer(request):
     # Return validation errors if the data is invalid
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)   
 
+@swagger_auto_schema(
+    request_body=LoginSerializer,
+    method='POST'
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
@@ -105,6 +118,10 @@ def login_view(request):
         logger.error(str(e))
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@swagger_auto_schema(
+    request_body=LoginSerializer,
+    method='POST'
+)
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def admin_login(request):
@@ -136,3 +153,4 @@ def admin_login(request):
     except Exception as e:
         logger.error(str(e))
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        

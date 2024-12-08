@@ -87,6 +87,9 @@ def get_ticket_history(request: HttpRequest):
 
     return Response(serializer.data, status=HTTP_200_OK)
 
+@swagger_auto_schema(
+    method='GET'
+)
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def customer_view_tickets(request):
@@ -108,6 +111,10 @@ def customer_view_tickets(request):
     except PermissionError as e:
         return JsonResponse({"error": str(e)}, status=403)
 
+@swagger_auto_schema(
+    request_body=TicketCancellationSerializer,
+    method='POST'
+)        
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def cancel_ticket(request):
@@ -149,7 +156,11 @@ def cancel_ticket(request):
 
     # If validation fails
     return Response({"status": "error", "errors": serializer.errors}, status=400)
-    
+
+@swagger_auto_schema(
+    request_body=TicketSalesRequestSerializer,
+    method='POST'
+)     
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def view_ticket_sales(request):
