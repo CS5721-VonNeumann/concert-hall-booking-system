@@ -19,6 +19,9 @@ pytest-django = "*"
 drf-yasg = "*"
 pytest = "*"
 django-pytest = "*"
+pip = "*"
+django-prometheus = "*"
+prometheus-client = "*"
 
 [dev-packages]
 

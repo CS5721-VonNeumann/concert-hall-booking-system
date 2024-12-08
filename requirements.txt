@@ -25,6 +25,7 @@ mysqlclient==2.2.6; python_version >= '3.8'
 packaging==24.2; python_version >= '3.8'
 pluggy==1.5.0; python_version >= '3.8'
 prometheus-client==0.21.1; python_version >= '3.8'
+django-prometheus>=2.3.0
 prompt-toolkit==3.0.48; python_full_version >= '3.7.0'
 pytest==8.3.4; python_version >= '3.8'
 pytest-django==4.9.0; python_version >= '3.8'

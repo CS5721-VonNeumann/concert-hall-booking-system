@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     'drf_yasg',
+    "django_prometheus",
 ]
 
 REST_FRAMEWORK = {
@@ -82,6 +83,7 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+     "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -90,7 +92,8 @@ MIDDLEWARE = [
     # "users.middleware.CurrentUserMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "users.middleware.CurrentUserMiddleware"
+    "users.middleware.CurrentUserMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
