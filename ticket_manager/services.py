@@ -47,19 +47,17 @@ def create_ticket(customer:Customer, show_obj, seat_objs, price_per_ticket):
         return False
 
 class TicketCommandControl:
-    def __init__(self, cancel_command, refund_command, loyalty_deduction_command):
+    def __init__(self, cancel_command, refund_command):
         self.cancel_command = cancel_command
         self.refund_command = refund_command
-        self.loyalty_deduction_command = loyalty_deduction_command
         
     def execute(self):
         cancel_message = self.cancel_command.execute()
         refund_message = self.refund_command.execute()
-        loyalty_message = self.loyalty_deduction_command.execute()
-        return cancel_message, refund_message, loyalty_message
+        return cancel_message, refund_message
 
 
-def isTicketCancellationAllowed(ticket_id,customer):
+def is_ticket_cancellation_allowed(ticket_id,customer):
     current_membership = CustomerMembership.get_latest_valid_membership_instance(customer)
     cancel_time = current_membership.get_cancellation_time_policy()
     ticket = Ticket.objects.get(id=ticket_id)
@@ -69,6 +67,3 @@ def isTicketCancellationAllowed(ticket_id,customer):
     allow_time = show_datetime - timedelta(hours=cancel_time)
     time = datetime.now() < allow_time
     return time
-  
-    
- 

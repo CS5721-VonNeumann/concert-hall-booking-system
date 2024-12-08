@@ -13,8 +13,21 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import environ
 import os
+# Define the base directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Define the logs directory and file path
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')
+LOG_FILE_PATH = os.path.join(LOGS_DIR, 'application.log')
+
+# Ensure the logs directory exists
+os.makedirs(LOGS_DIR, exist_ok=True)
 env = environ.Env()
+
+# Ensure the log file exists
+if not os.path.exists(LOG_FILE_PATH):
+    with open(LOG_FILE_PATH, 'w'):  # Create the file if it doesn't exist
+        pass
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,7 +54,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "experiments",
     "approval_engine",
     "users",
     "show_manager",
@@ -180,4 +192,42 @@ SWAGGER_SETTINGS = {
             'name': 'Authorization'
         }
     }
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'detailed': {
+            'format': '{asctime} - {name} - {levelname} - {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',  # Logs DEBUG, INFO, and ERROR
+            'class': 'logging.FileHandler',
+            'filename': 'logs/application.log',
+            'formatter': 'detailed',
+        },
+    },
+    'loggers': {
+        # General Django logger
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',  # Only log INFO and above
+            'propagate': True,
+        },
+        # Suppress excessive debug messages from database backends
+        'django.db.backends': {
+            'handlers': ['file'],
+            'level': 'WARNING',  # Only log WARNING and above
+            'propagate': False,
+        },
+        # Custom logger for your application
+        'concert_hall_booking': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+        },
+    },
 }

@@ -1,0 +1,6 @@
+SHOW_NOT_FOUND_ERROR = "Show with the given ID does not exist."
+INVALID_SCHEDULED_STATUS_ERROR = "Show is not in scheduled status."
+INVALID_PENDING_STATUS_ERROR = "Show is not in pending status."
+NO_ACCESS_TO_UPDATE_ERROR = "You do not have access to update this show."
+NO_ACCESS_TO_CANCEL_ERROR = "You do not have access to cancel this show."
+PERMISSION_DENIED_ERROR = "Permission denied: You don't have access to do this action"

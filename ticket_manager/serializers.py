@@ -1,10 +1,14 @@
 from django.shortcuts import get_object_or_404
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from users.middleware import get_current_user
 from users.middleware import get_current_user
 from .models import Ticket
+from users.middleware import get_current_user
+from show_manager.serializers import ShowSerializer
+from .models import Ticket
 from show_manager.models import Show
-from .services import isTicketCancellationAllowed
+from .services import is_ticket_cancellation_allowed
 
 class BookTicketSerializer(serializers.Serializer):
 
@@ -63,7 +67,7 @@ class TicketCancellationSerializer(serializers.Serializer):
                 raise serializers.ValidationError(f"Ticket ID {ticket_id} is already canceled.")
 
             # Check if ticket cancellation is allowed
-            if not isTicketCancellationAllowed(ticket_id, customer):
+            if not is_ticket_cancellation_allowed(ticket_id, customer):
                 raise serializers.ValidationError(f"Cancellation not allowed for Ticket ID {ticket_id} within current membership rules.")
 
             validated_tickets.append(ticket.id)
@@ -71,3 +75,36 @@ class TicketCancellationSerializer(serializers.Serializer):
         # Save the validated tickets for further use
         self.context["validated_tickets"] = validated_tickets
         return ticket_ids
+
+class TicketSalesRequestSerializer(serializers.Serializer):
+    show_name = serializers.CharField(required=True)
+    slot_id = serializers.IntegerField(required=False)
+
+    def validate(self, data):
+        show_name = data.get('show_name')
+        slot_id = data.get('slot_id',None)
+        try:
+            show = Show.objects.get(
+                name=show_name
+                )
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError("No show found with the given name")
+        if hasattr(get_current_user(), 'showproducer') and not (slot_id):
+            raise serializers.ValidationError("For Show Producer, slot_id is required.")
+        if slot_id:
+            try:
+                Show.objects.filter(
+                    name=show_name,
+                    slot_id=slot_id
+                )
+            except ObjectDoesNotExist:
+                raise serializers.ValidationError("No show found with the given name and slot")
+            except ValueError:
+                raise serializers.ValidationError("Invalid Format")
+        return data
+
+class TicketSerializer(serializers.ModelSerializer):
+    show = ShowSerializer()  
+    class Meta:
+        model = Ticket
+        fields = ['id', 'customer', 'show', 'seat', 'isCancelled']  

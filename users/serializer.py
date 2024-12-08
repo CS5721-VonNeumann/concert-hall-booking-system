@@ -111,3 +111,7 @@ class ShowProducerSerializer(serializers.ModelSerializer):
             organisation=organisation
         )
         return show_producer
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, write_only=True)

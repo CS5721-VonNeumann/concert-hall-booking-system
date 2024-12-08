@@ -3,6 +3,10 @@ from users.models import ShowProducer
 from hall_manager.models import Hall, Slot, Category
 from .showstatuses import ShowStatus, PendingStatus, ScheduledStatus, CompletedStatus, RejectedStatus, CancelledStatus, ShowStatusEnum
 from shared.interfaces import Subject
+from .constants import (
+    INVALID_SCHEDULED_STATUS_ERROR,
+    INVALID_PENDING_STATUS_ERROR,
+)
 
 # keep enums in a single file together enums.py
 STATUS_CLASSES = {
@@ -12,6 +16,7 @@ STATUS_CLASSES = {
     ShowStatusEnum.REJECTED.name: RejectedStatus,
     ShowStatusEnum.CANCELLED.name: CancelledStatus
 }
+
 class Show(models.Model, Subject):
     name = models.CharField(max_length=50)
     has_intermission = models.BooleanField()
@@ -24,25 +29,15 @@ class Show(models.Model, Subject):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, related_name="shows")
     show_producer = models.ForeignKey(ShowProducer, on_delete=models.SET_NULL, null=True, related_name='shows')
 
-    def attach(self, observer, interest):
-        if(interest == 0):
-            # observer is interested in show approval / rejection
-            # show producer is stored inside show table
-            self.show_producer = observer
-            self.save()
-        # TODO 
-        # when customer purchases ticket, he will attach with interest = 1 to know show cancellations
-        pass
+    def attach(self, observer):
+        # observer is interested in show approval / rejection
+        # show producer is stored inside show table
+        self.show_producer = observer
+        self.save()
 
-    def notify(self, interest, message = ""):
-        """
-        Notify the registered observer (show producer) about the status change.
-        """
-        if(interest == 0):
-            self.show_producer.update(f"Show '{self.name}' status changed to {self.status}. {message}")
-        # TODO 
-        # on cancellation, notify customers who purchased tickets for this show
-        pass
+    def notify(self, message=""):
+        # notify the registered observer (show producer) about the status change.
+        self.show_producer.update(f"Show '{self.name}' status changed to {self.status}. {message}")
 
     def get_status_instance(self):
         status_class = STATUS_CLASSES.get(self.status)
@@ -53,31 +48,32 @@ class Show(models.Model, Subject):
     def schedule(self):
         status_instance: ShowStatus = self.get_status_instance()
         if(status_instance and not isinstance(status_instance, PendingStatus)):
-            raise Exception("Show is not in pending status")
+            raise ValueError(INVALID_PENDING_STATUS_ERROR)
         status_instance.transition_to_scheduled()
-        self.notify(interest=0)
-    
+        self.notify()
+
     def reject(self, message):
         status_instance: ShowStatus = self.get_status_instance()
         if(not isinstance(status_instance, PendingStatus)):
-            raise Exception("Show is not in pending status")
+            raise ValueError(INVALID_PENDING_STATUS_ERROR)
         status_instance.transition_to_rejected()
-        self.notify(interest=0, message=message)
+        self.notify(message=message)
     
-    def cancel(self):
+    def cancel(self, message=""):
         status_instance: ShowStatus = self.get_status_instance()
         # producer is cancelling a pending show, no need for notifications
         if(status_instance and isinstance(status_instance, PendingStatus)):
             status_instance.transition_to_cancelled()
 
-        # TODO admin cancels a scheduled show
+        if(status_instance and isinstance(status_instance, ScheduledStatus)):
+            status_instance.transition_to_cancelled()
+            self.notify(message=message)
 
     def complete(self):
         status_instance: ShowStatus = self.get_status_instance()
         if(not isinstance(status_instance, ScheduledStatus)):
-            raise Exception("Show is not in scheduled status")
+            raise ValueError(INVALID_SCHEDULED_STATUS_ERROR)
         status_instance.transition_to_completed()
-
 
     @staticmethod
     def is_overlapping_show_exists(hall, slot):
@@ -87,5 +83,3 @@ class Show(models.Model, Subject):
             status=ShowStatusEnum.SCHEDULED.name
         ).exists()
         return overlapping_shows
-
-    
