@@ -46,17 +46,6 @@ def create_ticket(customer:Customer, show_obj, seat_objs, price_per_ticket):
         print(f"Something went wrong. Exception: {e}")
         return False
 
-class TicketCommandControl:
-    def __init__(self, cancel_command, refund_command):
-        self.cancel_command = cancel_command
-        self.refund_command = refund_command
-        
-    def execute(self):
-        cancel_message = self.cancel_command.execute()
-        refund_message = self.refund_command.execute()
-        return cancel_message, refund_message
-
-
 def is_ticket_cancellation_allowed(ticket_id,customer):
     current_membership = CustomerMembership.get_latest_valid_membership_instance(customer)
     cancel_time = current_membership.get_cancellation_time_policy()
