@@ -84,7 +84,7 @@ class TicketSalesRequestSerializer(serializers.Serializer):
         show_name = data.get('show_name')
         slot_id = data.get('slot_id',None)
         try:
-            Show.objects.filter(
+            show = Show.objects.get(
                 name=show_name
                 )
         except ObjectDoesNotExist:

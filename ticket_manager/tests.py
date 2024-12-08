@@ -206,3 +206,75 @@ def test_customer_view_tickets_not_authenticated():
     assert response.status_code == 401
     response_data = response.json()
     assert response_data["detail"] == "Authentication credentials were not provided."
+
+@pytest.mark.django_db
+def test_admin_view_ticket_sales(setup_data):
+    client_admin = setup_data["client_admin"]
+    show_obj = setup_data["show"]
+
+    # Call the view ticket sales API for admin
+    response = client_admin.post(
+        "/ticket_manager/view-sales", 
+        {"show_name": show_obj.name},
+        format="json"
+    )
+    # Assert response
+    assert response.status_code == 200
+
+@pytest.mark.django_db
+def test_show_producer_view_ticket_sales_with_no_slotid(setup_data):
+    client_show_producer = setup_data["client"]
+    show_obj = setup_data["show"]
+
+    # Call the view ticket sales API for show producer
+    response = client_show_producer.post(
+        "/ticket_manager/view-sales", 
+        {"show_name": show_obj.name},
+        format="json"
+    )
+    # Assert response
+    assert response.status_code == 400
+
+@pytest.mark.django_db
+def test_show_producer_view_ticket_sales(setup_data):
+    client_show_producer = setup_data["client"]
+    show_obj = setup_data["show"]
+    
+    # Call the view ticket sales API for show producer
+    response = client_show_producer.post(
+        "/ticket_manager/view-sales", 
+        {"show_name": show_obj.name,"slot_id":show_obj.slot.id},
+        format="json"
+    )
+    # Assert response
+    assert response.status_code == 200
+
+@pytest.mark.django_db
+def test_customer_view_ticket_sales_unauthorized(setup_data):
+    client_customer = setup_data["client_customer"]
+    show_obj = setup_data["show"]
+
+    # Attempt to access the sales data as a customer
+    response = client_customer.post(
+        "/ticket_manager/view-sales", 
+        {"show_name": show_obj.name},
+        format="json"
+    )
+
+    # Assert unauthorized access error
+    assert response.status_code == 403
+    assert response.json() == {"error": "Unauthorized access"}
+
+@pytest.mark.django_db
+def test_invalid_show_name_admin_view_sales(setup_data):
+    client_admin = setup_data["client_admin"]
+
+    # Attempt to fetch ticket sales for a non-existent show
+    response = client_admin.post(
+        "/ticket_manager/view-sales", 
+        {"show_name": "NonExistentShow"},
+        format="json"
+    )
+
+    # Assert error due to invalid show name
+    assert response.status_code == 400
