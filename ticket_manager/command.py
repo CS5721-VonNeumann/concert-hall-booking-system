@@ -2,11 +2,7 @@ from .models import Ticket
 from django.core.exceptions import ValidationError
 from django.db import models
 from payment_gateway.services import RefundService
-
-class Command():
-    def execute(self):
-        pass
-
+from shared.interfaces import Command
 class CancelTicketCommand(Command):
     def __init__(self, ticket_ids, customer):
         self.ticket_ids = ticket_ids
@@ -42,3 +38,12 @@ class RefundCommand(Command):
         except Exception as e:
             raise Exception(f"Refund processing failed: {str(e)}")
 
+class CommandInvoker:
+    def __init__(self, cancel_command, refund_command):
+        self.cancel_command = cancel_command
+        self.refund_command = refund_command
+        
+    def commandExecute(self):
+        cancel_message = self.cancel_command.execute()
+        refund_message = self.refund_command.execute()
+        return cancel_message, refund_message

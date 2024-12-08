@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+
 class Subject():
     """
     The Subject class holds a list of observers and notifies them when there is a state change.
@@ -23,3 +25,9 @@ class Observer():
     """
     def update(self, message):
         raise NotImplementedError("Subclasses should implement this method")
+
+class Command(ABC):
+
+    @abstractmethod
+    def execute(self):
+        pass
