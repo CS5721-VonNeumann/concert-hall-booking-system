@@ -44,7 +44,7 @@ class CommandInvoker:
         self.cancel_command = cancel_command
         self.refund_command = refund_command
         
-    def commandExecute(self):
+    def command_execute(self):
         cancel_message = self.cancel_command.execute()
         refund_message = self.refund_command.execute()
         return cancel_message, refund_message
