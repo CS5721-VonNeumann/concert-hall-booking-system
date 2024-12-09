@@ -52,15 +52,17 @@ def setup_data(db):
     HallSupportsCategory.objects.create(hall=hall, category=category)
     seats = Seat.objects.filter(hall=hall)
 
-    # Create a ticket for cancellation
     show_obj = Show.objects.create(
         name="Test Show",
         category=category,
         hall=hall,
         slot=slot,
-        status=ShowStatusEnum.PENDING,
+        status=ShowStatusEnum.SCHEDULED.name,
         has_intermission=True,
     )
+
+    
+    # Create a ticket for cancellation
     ticket = Ticket.objects.create(
         customer=customer, show=show_obj, seat=hall.seats.first(), price=10.00
     )
