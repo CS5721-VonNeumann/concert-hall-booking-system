@@ -31,7 +31,7 @@ def set_recommendation_strategy(request):
 
     # Set the global strategy
     GlobalRecommendationContext.set_strategy(strategy_class())
-    
+
     return Response({"message": f"Global recommendation strategy set to '{strategy_name}'."},
             status=status.HTTP_200_OK)
 

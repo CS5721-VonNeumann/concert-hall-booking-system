@@ -141,7 +141,7 @@ def cancel_ticket(request):
                 cancel_command=cancel_command,
                 refund_command=refund_command
             )
-            canceled_tickets = service.commandExecute()
+            canceled_tickets = service.command_execute()
             logger.info(f"Tickets {tickets} Cancelled by {customer.user.email}")
 
             # Return a success response
