@@ -26,7 +26,7 @@ class BookTicketSerializer(serializers.Serializer):
 
         show_obj = get_object_or_404(Show, id=show_id)
         if show_obj.status != ShowStatusEnum.SCHEDULED.name:
-            raise serializers.ValidationError("Tikcet cannot be booked for a non scheduled show.")
+            raise serializers.ValidationError("Ticket cannot be booked for a non-scheduled show.")
 
         if any(seat > show_obj.hall.hall_capacity for seat in seat_list):
             raise serializers.ValidationError({"seats":"Some of the requested seats do not exist in the hall."})
