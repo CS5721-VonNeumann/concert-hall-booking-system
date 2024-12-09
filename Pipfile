@@ -15,13 +15,13 @@ flower = "*"
 djangorestframework = "*"
 django-celery-results = "*"
 django-celery-beat = "*"
-pytest-django = "*"
 drf-yasg = "*"
 pytest = "*"
 django-pytest = "*"
 pip = "*"
-django-prometheus = "*"
 prometheus-client = "*"
+django-prometheus = "*"
+pytest-django = "*"
 
 [dev-packages]
 
