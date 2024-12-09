@@ -2,7 +2,7 @@ from .models import Ticket
 from django.core.exceptions import ValidationError
 from django.db import models
 from payment_gateway.services import RefundService
-from shared.interfaces import Command
+from shared.command import Command
 class CancelTicketCommand(Command):
     def __init__(self, ticket_ids, customer):
         self.ticket_ids = ticket_ids
