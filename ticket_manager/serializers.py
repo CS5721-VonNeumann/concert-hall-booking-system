@@ -8,6 +8,7 @@ from users.middleware import get_current_user
 from show_manager.serializers import ShowSerializer
 from .models import Ticket
 from show_manager.models import Show
+from show_manager.showstatuses import ShowStatusEnum
 from .services import is_ticket_cancellation_allowed
 
 class BookTicketSerializer(serializers.Serializer):
@@ -24,6 +25,8 @@ class BookTicketSerializer(serializers.Serializer):
         seat_list = attrs.get('seats')
 
         show_obj = get_object_or_404(Show, id=show_id)
+        if show_obj.status != ShowStatusEnum.SCHEDULED.name:
+            raise serializers.ValidationError("Tikcet cannot be booked for a non scheduled show.")
 
         if any(seat > show_obj.hall.hall_capacity for seat in seat_list):
             raise serializers.ValidationError({"seats":"Some of the requested seats do not exist in the hall."})
