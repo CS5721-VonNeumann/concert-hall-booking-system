@@ -6,6 +6,7 @@ from ticket_manager.models import Ticket
 from users.models import Customer
 from datetime import datetime, timedelta
 from hall_manager.models import TIMING_TO_TIME
+from config.logger import logger
 
 def return_available_seats(show_obj, seat_list: list):
 
@@ -16,6 +17,7 @@ def return_available_seats(show_obj, seat_list: list):
     )
 
     if tickets.exists():
+        logger.error("Seat is already booked")
         return False
 
     seat_objs = Seat.objects.filter(
@@ -26,6 +28,7 @@ def return_available_seats(show_obj, seat_list: list):
     if seat_objs.exists():
         return seat_objs
 
+    logger.error("Seat is not available")
     return False
 
 
@@ -43,7 +46,7 @@ def create_ticket(customer:Customer, show_obj, seat_objs, price_per_ticket):
 
         return ticket_ids
     except Exception as e:
-        print(f"Something went wrong. Exception: {e}")
+        logger.error(f"Something went wrong. Exception: {str(e)}")
         return False
 
 def is_ticket_cancellation_allowed(ticket_id,customer):

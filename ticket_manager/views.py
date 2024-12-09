@@ -53,12 +53,18 @@ def book_tickets(request: HttpRequest):
                     "ticket_ids": list(tickets),
                     "total_amount": bill_amount
                 }, status=HTTP_200_OK)
+            
+            error_msg="Something went wrong creating tickets."
+            logger.error(error_msg)
+            return JsonResponse({"error": error_msg}, status=HTTP_404_NOT_FOUND)
 
-            return JsonResponse({"error": "Something went wrong creating tickets."}, status=HTTP_404_NOT_FOUND)
+        error_msg="Payment Failed."
+        logger.error(error_msg)
+        return JsonResponse({"error": error_msg}, status=HTTP_404_NOT_FOUND)
 
-        return JsonResponse({"error": "Payment Failed."}, status=HTTP_404_NOT_FOUND)
-
-    return JsonResponse({"error": "Seat not available."}, status=HTTP_404_NOT_FOUND)
+    error_msg="Seat not available."
+    logger.error(error_msg)
+    return JsonResponse({"error": error_msg}, status=HTTP_404_NOT_FOUND)
 
 
 @swagger_auto_schema(
@@ -82,6 +88,7 @@ def get_ticket_history(request: HttpRequest):
 
     serializer = TicketHistorySerializer(page_obj, many=True)
 
+    logger.info(f"Ticket history returned for customer {customer.id}")
     return Response(serializer.data, status=HTTP_200_OK)
 
 @swagger_auto_schema(
