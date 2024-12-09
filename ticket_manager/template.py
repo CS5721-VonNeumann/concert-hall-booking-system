@@ -56,7 +56,6 @@ class CustomerTicketView(TicketViewTemplate):
         return bookings
 
     def filter_upcoming(self, bookings):
-
         upcoming_tickets = []
         for ticket in bookings:
             show_time = ticket.getShowTimimg()
