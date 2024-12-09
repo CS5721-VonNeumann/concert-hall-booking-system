@@ -42,6 +42,8 @@ services:
       - .:/app
     ports:
       - '8001:8000'
+    networks:
+      - default  
     depends_on:
       - db
   backend2:
@@ -55,6 +57,8 @@ services:
       - .:/app
     ports:
       - '8002:8000'
+    networks:
+      - default 
     depends_on:
       - db
   backend3:
@@ -68,6 +72,8 @@ services:
       - .:/app
     ports:
       - '8003:8000'
+    networks:
+      - default 
     depends_on:
       - db
  
