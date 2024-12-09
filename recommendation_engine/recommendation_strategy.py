@@ -9,14 +9,17 @@ from show_manager.serializers import ShowSerializer
 class GlobalRecommendationContext:
     _strategy = None  # Holds the global strategy instance
 
+    @classmethod
     def set_strategy(self, strategy):
         self._strategy = strategy
 
+    @classmethod
     def get_strategy(self):
         if self._strategy is None:
             raise ValueError("Global recommendation strategy is not set.")
         return self._strategy
 
+    @classmethod
     def get_recommendations(self):
         strategy = self.get_strategy()
         return strategy.recommend()
