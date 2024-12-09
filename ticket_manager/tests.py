@@ -1,7 +1,9 @@
+import json
 import pytest
 from rest_framework.test import APIClient
 from rest_framework import status
-import json
+
+from show_manager.showstatuses import ShowStatusEnum
 
 
 @pytest.mark.django_db
@@ -43,6 +45,37 @@ def test_book_ticket_seat_not_available(setup_data):
     # Assertions
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response_data["error"] == "Seat not available."
+
+
+@pytest.mark.django_db
+def test_book_ticket_show_not_available(setup_data):
+    # Setup from fixture
+    client = setup_data['client_customer']
+    show = setup_data['show']
+
+    # set show status to CANCELLED
+    original_status = show.status
+    show.status = ShowStatusEnum.CANCELLED.name
+    show.save()
+    print(show.status)
+
+    # Simulate unavailable seats by sending invalid seat IDs
+    data = {
+        "show_id": show.id,
+        "seats": [1]  # Invalid seat ID
+    }
+    # Send POST request to book tickets
+    response = client.post('/ticket_manager/book', data, format='json')
+    response_data = response.json()
+
+    # revert show status
+    show.status = original_status
+    show.save()
+
+    # Assertions
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "non_field_errors" in response_data
+    assert response_data["non_field_errors"][0] == "Ticket cannot be booked for a non-scheduled show."
 
 
 @pytest.mark.django_db
