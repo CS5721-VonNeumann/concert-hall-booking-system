@@ -57,10 +57,10 @@ def get_customer_notifications(request: HttpRequest):
 
     print(customer.id)
 
-    # Filter notifications where the show_producer matches the given ID and is unread
+    # Filter notifications where the customer matches the given ID and is unread
     unread_notifications = CustomerNotifications.objects.filter(customer=customer, isRead=0)
     
-    # # Serialize notifications to a list of dictionaries
+    # Serialize notifications to a list of dictionaries
     notifications = []
     for notification in unread_notifications:
         notifications.append(model_to_dict(notification))

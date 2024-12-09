@@ -1,19 +1,19 @@
 import json
+
 from django.http import JsonResponse, HttpRequest
 from django.shortcuts import get_object_or_404
-from drf_yasg.utils import swagger_auto_schema
-from .models import Hall, Slot, Category, HallSupportsSlot, HallSupportsCategory, Seat
-from .seattypes import SeatTypeEnum
-from show_manager.models import Show
 from django.db.models import F
-from users.middleware import get_current_user
 from rest_framework.decorators import permission_classes
 from rest_framework.decorators import api_view
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from .serializers import AddSeatsToHallSerializer, ChangeSeatTypeSerializer
+from rest_framework.permissions import IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
+
+from .models import Hall, Slot, Category, HallSupportsSlot, HallSupportsCategory, Seat
+from show_manager.models import Show
 from .serializers import HallSerializer, VenueSerializer, SlotSerializer, CategorySerializer, AddSeatsToHallSerializer, ChangeSeatTypeSerializer
+from .seattypes import SeatTypeEnum
 from config.utils import get_query_param_schema
+from users.middleware import get_current_user
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])

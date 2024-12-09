@@ -45,7 +45,7 @@ def register_customer(request):
             # Generate token for the created user
             logger.info(f"Customer registered with id {customer_user.user.email}")
             return Response({"token": token.key}, status=status.HTTP_201_CREATED)
-        except:
+        except Exception:
             return Response({"error": "An unexpected error occurred while registering the customer."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     # If the data is invalid, return a 400 response with errors

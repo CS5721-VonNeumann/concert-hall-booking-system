@@ -223,7 +223,7 @@ def test_admin_view_ticket_sales(setup_data):
 
 @pytest.mark.django_db
 def test_show_producer_view_ticket_sales_with_no_slotid(setup_data):
-    client_show_producer = setup_data["client"]
+    client_show_producer = setup_data["client_showproducer"]
     show_obj = setup_data["show"]
 
     # Call the view ticket sales API for show producer
@@ -237,7 +237,7 @@ def test_show_producer_view_ticket_sales_with_no_slotid(setup_data):
 
 @pytest.mark.django_db
 def test_show_producer_view_ticket_sales(setup_data):
-    client_show_producer = setup_data["client"]
+    client_show_producer = setup_data["client_showproducer"]
     show_obj = setup_data["show"]
     
     # Call the view ticket sales API for show producer
