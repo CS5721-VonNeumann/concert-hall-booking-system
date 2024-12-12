@@ -30,7 +30,7 @@ class RefundCommand(Command):
             refund_service = RefundService()
             refund_amount=0
             refund = refund_service.get_ticket_refund(self.ticket_ids)
-            if refund!=None:
+            if refund!=False:
                 refund_amount+=refund
             if refund_amount is False:
                 raise Exception("Refund calculation failed.")

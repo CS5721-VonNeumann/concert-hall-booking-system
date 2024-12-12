@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from ticket_manager.models import Ticket
+from users.models import Customer
 from membership.memberships import Membership
 
 class LoyaltyDecorator(ABC):
@@ -12,16 +12,15 @@ class RegularLoyalty(LoyaltyDecorator):
         return 10
 
 class NewCustomerLoyaltyDecorator(LoyaltyDecorator):
-    def __init__(self, loyalty_decorator: LoyaltyDecorator, customer):
+    def __init__(self, loyalty_decorator: LoyaltyDecorator, customer: Customer):
         self.loyalty_decorator = loyalty_decorator
         self.customer = customer
 
     def get_loyalty_points(self):
         loyalty_points = self.loyalty_decorator.get_loyalty_points()
+        is_new_customer = self.customer.loyalty_points == 0
         
-        ticket_count = Ticket.objects.filter(customer=self.customer).count()
-        
-        if ticket_count == 1:
+        if is_new_customer:
             return loyalty_points * 1.25
 
         return loyalty_points

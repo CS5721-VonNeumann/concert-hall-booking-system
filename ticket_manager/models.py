@@ -39,7 +39,8 @@ class Ticket(models.Model, Subject):
         tickets = Ticket.objects.filter(show=show)
         
         for ticket in tickets:
-            ticket.notify(message=f"We regret to inform you that the show has been cancelled, and your ticket with id:{ticket.id} is no longer valid.")
+            ticket.notify(message=f"We regret to inform you that the show: {show.name} has been cancelled, and your ticket with id:{ticket.id} is no longer valid.")
+            ticket.cancel()
 
     def cancel(self):
         self.isCancelled = True
