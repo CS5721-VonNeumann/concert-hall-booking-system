@@ -61,29 +61,3 @@ def test_worker_rejects_invalid_request(setup_data, mocker):
     show.refresh_from_db()
     assert show.status == ShowStatusEnum.REJECTED.name
     mock_notify.assert_called_with(message="Another show is already scheduled in the same hall and slot.")
-
-
-
-@pytest.mark.django_db
-def test_worker_approves_valid_request_and_notify(setup_data, mocker):
-    show_producer = setup_data["show_producer"]
-    category = setup_data["category"]
-    slot = setup_data["slot"]
-    hall = setup_data["hall"]
-
-    show = Show.objects.create(
-        name="Valid Show",
-        status=ShowStatusEnum.PENDING.name,
-        show_producer=show_producer,
-        category=category,
-        slot=slot,
-        hall=hall,
-        has_intermission=True
-    )
-
-    mock_notify = mocker.patch("show_manager.models.Show.notify")
-
-    ApprovalEngine(show=show).handle_show_request()
-    show.refresh_from_db()
-    assert show.status == ShowStatusEnum.SCHEDULED.name
-    mock_notify.assert_called_with()

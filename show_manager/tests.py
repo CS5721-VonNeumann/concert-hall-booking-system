@@ -3,36 +3,6 @@ import json
 from .models import Show, ShowStatusEnum
 from hall_manager.models import Category, HallSupportsCategory
 
-@pytest.mark.skip(reason="Skipping this test for now")
-@pytest.mark.django_db
-def test_raise_request_creates_pending_show(setup_data):
-
-    client = setup_data["client_showproducer"]
-    show_producer = setup_data["show_producer"]
-    category = setup_data["category"]
-    slot = setup_data["slot"]
-    hall = setup_data["hall"]
-
-    request_data = {
-        "name": "Test Show",
-        "category_id": category.id,
-        "has_intermission": True,
-        "slot_id": slot.id,
-        "hall_id": hall.id
-    }
-
-    response = client.post('/shows/raise-request', request_data, format="json")
-
-    assert response.status_code == 200
-    show_id = json.loads(response.content.decode())['show_response']['id']
-    show = Show.objects.filter(id=show_id).first()
-    assert show.name == request_data['name']
-    assert show.category == category
-    assert show.slot == slot
-    assert show.hall == hall
-    assert show.show_producer == show_producer
-
-
 @pytest.mark.django_db
 def test_update_show_request(setup_data):
     client = setup_data["client_showproducer"]

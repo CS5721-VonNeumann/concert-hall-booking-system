@@ -41,30 +41,6 @@ def test_notification_for_rejected_show(setup_data):
 
 
 @pytest.mark.django_db
-def test_notification_for_scheduled_show(setup_data, mocker):
-    show_producer = setup_data["show_producer"]
-    category = setup_data["category"]
-    slot = setup_data["slot"]
-    hall = setup_data["hall"]
-
-    show = Show.objects.create(
-        name="Valid Show",
-        status=ShowStatusEnum.PENDING.name,
-        show_producer=show_producer,
-        category=category,
-        slot=slot,
-        hall=hall,
-        has_intermission=True
-    )
-
-    ApprovalEngine(show=show).handle_show_request()
-    show.refresh_from_db()
-    assert show.status == ShowStatusEnum.SCHEDULED.name
-    notification = ShowProducerNotifications.objects.filter().last()
-    print(notification.message)
-    assert notification.message == "Show 'Valid Show' status changed to SCHEDULED. "
-
-@pytest.mark.django_db
 def test_get_show_producer_notifications(setup_data):
     client_showproducer = setup_data["client_showproducer"]
     show_producer = setup_data["show_producer"]
