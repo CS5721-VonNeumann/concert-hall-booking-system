@@ -2,11 +2,14 @@ from abc import ABC, abstractmethod
 from users.models import Customer
 from membership.memberships import Membership
 
+# Abstract base class defining the interface for loyalty decorators
 class LoyaltyDecorator(ABC):
     @abstractmethod
     def get_loyalty_points(self):
+        # method to compute loyalty points.
         pass
 
+# Concrete implementation for regular loyalty points
 class RegularLoyalty(LoyaltyDecorator):
     def get_loyalty_points(self):
         return 10
